@@ -1,6 +1,6 @@
 # Folio
 
-A Next.js presentation studio with JSON-driven slides, three visual themes, and Motion animations.
+A Next.js presentation studio with JSON-driven slides, four visual themes, and Motion animations.
 
 ## Run
 
@@ -32,7 +32,7 @@ A reference deck is in `public/sample-deck.json`. The TypeScript schema, validat
 }
 ```
 
-- Themes: `editorial`, `midnight`, `botanical`.
+- Themes: `editorial`, `midnight`, `botanical`, `first-horizon`.
 - Layouts: `cover`, `statement`, `metrics`, `comparison`, `quote`, `closing`, `diagram`, `code`, `flowchart`.
 - Metrics and comparison slides require 1–4 `items`, each with `value`, `label`, and optional `detail` strings.
 - Slide IDs must be unique; decks support 1–100 slides.
@@ -148,3 +148,17 @@ All API responses use `{ "data": ... }` on success or `{ "error": { "code", "mes
 `POST /api/projects` accepts `{ "name": "My project", "theme": "editorial" }`. `POST /api/projects/{projectId}/slides` and `PUT /api/slides/{slideId}` accept a raw slide object matching the deck schema, including `id`, `layout`, `title`, `eyebrow`, `description`, and `notes`. `PATCH /api/slides/{slideId}` accepts changed slide fields, merges them with the saved object, and validates the complete result. `PUT /api/projects/{projectId}/deck` accepts the complete deck JSON. Saved slides also have links at `/library/projects/{projectId}/slides/{slideId}`.
 
 This local workspace has no user accounts or API authentication. Add authentication and project ownership before exposing these endpoints to other users or the public internet.
+
+## First Horizon template
+
+![First Horizon cover slide](docs/first-horizon-preview.png)
+
+Choose **Design → First Horizon** to apply the bank theme to the current deck without changing its content. Download the starter deck from the design panel, then use **Edit JSON → Import JSON** to open it. The six-slide starter is also at `public/first-horizon-deck.json`: cover, section statement, metrics, comparison, quote, and closing. Replace bracketed prompts with your own copy and verified figures.
+
+The theme includes the official logo on every slide, white backgrounds, blue accents, serif headings, and navy text. It works in thumbnails, the editor, saved slide pages, and presentation mode; diagrams also receive the blue palette. JSON imports, exports, local autosave, and project APIs accept `first-horizon`.
+
+### Design research and assets
+
+Reviewed [First Horizon’s website](https://www.firsthorizon.com/) on September 27, 2026. Its [site stylesheet](https://www.firsthorizon.com/_next/static/css/2f4fd6d370ce6ca8.css) defines primary blue `#0050B5`, secondary navy `#002257`, and light blue `#E5F1FF`. The site pairs Berlingske Slab headings with Untitled Sans body copy. This template uses local Georgia and Arial fallbacks to echo that hierarchy without redistributing those fonts. The blue horizon artwork is an original slide adaptation, not an official brand asset.
+
+The unchanged [official SVG logo](https://fhb-p-001.sitecorecontenthub.cloud/api/public/content/dlkejflct4kyw610izsifq-first-horizon-logo.svg?v=cb3d7976) is stored at `public/brands/first-horizon/logo.svg` so presentations do not depend on a remote image host. Its red symbol is preserved while the slide accents remain blue. First Horizon retains ownership of its logo. This is a website-informed presentation template, not an official brand guideline or bank publication.

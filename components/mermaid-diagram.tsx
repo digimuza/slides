@@ -29,6 +29,21 @@ function renderDiagram(source: string, theme: Theme): Promise<Diagram> {
         theme: dark ? "dark" : "base",
         themeVariables: dark
           ? { fontFamily: "Arial, sans-serif" }
+          : theme === "first-horizon"
+          ? {
+              fontFamily: "Arial, sans-serif",
+              primaryColor: "#e5f1ff",
+              primaryTextColor: "#002257",
+              primaryBorderColor: "#0050b5",
+              lineColor: "#0050b5",
+              actorBkg: "#e5f1ff",
+              actorTextColor: "#002257",
+              actorBorder: "#0050b5",
+              signalColor: "#0050b5",
+              signalTextColor: "#002257",
+              noteBkgColor: "#ffffff",
+              noteTextColor: "#002257",
+            }
           : {
               fontFamily: "Arial, sans-serif",
               primaryColor: theme === "botanical" ? "#dde6cf" : "#f5e5d7",

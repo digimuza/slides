@@ -41,6 +41,7 @@ const themeNames = {
   editorial: "Editorial",
   midnight: "Midnight",
   botanical: "Botanical",
+  "first-horizon": "First Horizon",
 };
 const layouts: Layout[] = [
   "cover",
@@ -88,6 +89,7 @@ export function SlideCanvas({
   revealStep?: number;
   onReveal?: (step: number) => void;
 }) {
+  const isFirstHorizon = theme === "first-horizon";
   const step = mini ? (slide.steps?.length || 1) - 1 : revealStep;
   return (
     <div
@@ -95,7 +97,17 @@ export function SlideCanvas({
     >
       <div className="slide-top">
         <span>
-          <span className="little-star">✳</span> possibility studio
+          {isFirstHorizon ? (
+            <img
+              className="first-horizon-logo"
+              src="/brands/first-horizon/logo.svg"
+              alt="First Horizon"
+              width={229}
+              height={24}
+            />
+          ) : (
+            <><span className="little-star">✳</span> possibility studio</>
+          )}
         </span>
         <span>{slide.eyebrow}</span>
       </div>
@@ -106,13 +118,13 @@ export function SlideCanvas({
           <p>{slide.description}</p>
           {slide.layout === "cover" && (
             <div className="slide-byline">
-              <span className="short-rule" /> AN OPEN INVITATION TO THINK BIGGER{" "}
+              <span className="short-rule" /> {isFirstHorizon ? "FIRSTHORIZON.COM" : "AN OPEN INVITATION TO THINK BIGGER"}{" "}
               <ArrowRight />
             </div>
           )}
           {slide.layout === "closing" && (
             <span className="closing-badge">
-              The beginning of something good <ArrowRight />
+              {isFirstHorizon ? "Let’s move forward together" : "The beginning of something good"} <ArrowRight />
             </span>
           )}
         </div>
@@ -155,9 +167,11 @@ export function SlideCanvas({
           />
         )}
         {(slide.layout === "cover" || slide.layout === "closing") && (
-          <Artwork />
+          isFirstHorizon ? (
+            <div className="horizon-art" aria-hidden="true"><span /><i /></div>
+          ) : <Artwork />
         )}
-        {slide.layout === "statement" && (
+        {slide.layout === "statement" && !isFirstHorizon && (
           <div className="statement-art">
             <span>?</span>
             <span>!</span>
@@ -177,7 +191,7 @@ export function SlideCanvas({
         )}
       </div>
       <div className="slide-bottom">
-        <span>IDEAS INTO POSSIBILITIES</span>
+        <span>{isFirstHorizon ? "FIRST HORIZON  /  FIRSTHORIZON.COM" : "IDEAS INTO POSSIBILITIES"}</span>
         <span>
           {String(index + 1).padStart(2, "0")} <i>/</i>{" "}
           {String(total).padStart(2, "0")}
@@ -929,6 +943,12 @@ export default function Studio() {
                     </button>
                   ))}
                 </div>
+                {deck.theme === "first-horizon" && (
+                  <p className="section-description">
+                    <a href="/first-horizon-deck.json" download>Download First Horizon starter deck</a>
+                    <br />Import it to start a new presentation.
+                  </p>
+                )}
               </section>
               <section className="inspector-section">
                 <div className="section-title">
@@ -1250,7 +1270,7 @@ export default function Studio() {
                     </p>
                   )}
                   <div className="modal-footer">
-                    <span>9 layouts · 3 themes · Endless possibilities</span>
+                    <span>9 layouts · 4 themes · Endless possibilities</span>
                     <button
                       className="button primary"
                       onClick={() => {
