@@ -2608,3 +2608,110 @@ kbd {
     flex-direction: column;
   }
 }
+
+/* First Horizon: colors sampled from firsthorizon.com; local logo stays intact. */
+.slide-canvas.theme-first-horizon,
+.diagram-fullscreen.theme-first-horizon {
+  --paper: #ffffff;
+  --text: #002257;
+  --accent: #0050b5;
+  --soft: #e5f1ff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.theme-first-horizon .first-horizon-logo {
+  display: block;
+  width: 23cqw;
+  height: auto;
+}
+.theme-first-horizon .slide-top > span:last-child {
+  opacity: 1;
+  color: var(--accent);
+}
+.theme-first-horizon .slide-copy h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: -0.16cqw;
+}
+.theme-first-horizon .slide-copy p {
+  font-family: Arial, Helvetica, sans-serif;
+  opacity: 1;
+  color: var(--text);
+}
+.theme-first-horizon.layout-cover .slide-copy,
+.theme-first-horizon.layout-closing .slide-copy {
+  width: 65%;
+}
+.theme-first-horizon.layout-cover .slide-copy h1,
+.theme-first-horizon.layout-closing .slide-copy h1 {
+  font-size: 5.2cqw;
+  margin-top: 2.7cqw;
+}
+.theme-first-horizon.layout-statement .slide-copy {
+  width: 92%;
+  border-left: 0.6cqw solid var(--accent);
+  padding-left: 3cqw;
+}
+.theme-first-horizon.layout-statement .slide-copy h1 {
+  margin-top: 2cqw;
+}
+.theme-first-horizon.layout-statement .slide-copy p {
+  max-width: 65cqw;
+}
+.theme-first-horizon .slide-bottom {
+  opacity: 1;
+  border-color: #b3d1ef;
+  color: var(--accent);
+}
+.theme-first-horizon .slide-item {
+  border-color: #b3d1ef;
+}
+.theme-first-horizon .slide-item p {
+  opacity: 1;
+}
+.theme-first-horizon.layout-comparison .slide-item:last-child strong {
+  color: #b3d1ef;
+}
+.theme-first-horizon .closing-badge {
+  border-radius: 3cqw;
+}
+.horizon-art {
+  position: absolute;
+  right: -6%;
+  top: -6%;
+  width: 37%;
+  height: 112%;
+  background: #e5f1ff;
+  overflow: hidden;
+  border-radius: 18cqw 0 0 0;
+}
+.horizon-art span {
+  position: absolute;
+  width: 145%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #0050b5;
+  left: 10%;
+  top: 25%;
+}
+.horizon-art i {
+  position: absolute;
+  width: 130%;
+  height: 30%;
+  background: #002257;
+  bottom: 0;
+  left: 0;
+  transform: skewY(-13deg);
+  transform-origin: left bottom;
+}
+.swatch-first-horizon {
+  background: #fff;
+  color: #002257;
+  border-color: #b3d1ef;
+}
+.swatch-first-horizon > span {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.swatch-first-horizon i { background: #002257; }
+.swatch-first-horizon i:nth-of-type(2) { background: #e5f1ff; }
+.swatch-first-horizon i:nth-of-type(3) { background: #0050b5; }

@@ -1,0 +1,81 @@
+{
+  "name": "First Horizon \u2014 Presentation starter",
+  "theme": "first-horizon",
+  "slides": [
+    {
+      "id": "fh-cover",
+      "layout": "cover",
+      "eyebrow": "PRESENTATION TITLE \u00b7 [DATE]",
+      "title": "Your next chapter.\nWithin reach.",
+      "description": "[Presentation subtitle]\n[Presenter name \u00b7 Team]",
+      "notes": "Replace bracketed fields with your presentation details. This is an editable starter template, not an official bank publication."
+    },
+    {
+      "id": "fh-section",
+      "layout": "statement",
+      "eyebrow": "01 / OUR DIRECTION",
+      "title": "A clear view of\nwhat comes next.",
+      "description": "[Summarize the opportunity, the audience need, and the outcome you want to achieve.]",
+      "notes": "Introduce the central message and why it matters to this audience."
+    },
+    {
+      "id": "fh-metrics",
+      "layout": "metrics",
+      "eyebrow": "02 / PERFORMANCE SNAPSHOT",
+      "title": "Progress you can measure.",
+      "description": "[Reporting period] \u00b7 Replace placeholders with verified data.",
+      "notes": "Insert verified figures and source details before presenting. No sample values are bank performance claims.",
+      "items": [
+        {
+          "value": "[X%]",
+          "label": "[Key measure]",
+          "detail": "[Period and source]"
+        },
+        {
+          "value": "[$X]",
+          "label": "[Key measure]",
+          "detail": "[Period and source]"
+        },
+        {
+          "value": "[X]",
+          "label": "[Key measure]",
+          "detail": "[Period and source]"
+        }
+      ]
+    },
+    {
+      "id": "fh-comparison",
+      "layout": "comparison",
+      "eyebrow": "03 / THE PATH FORWARD",
+      "title": "From opportunity to action.",
+      "description": "[Describe the change and the value it creates.]",
+      "notes": "Replace the prompts with your priorities and a concrete plan.",
+      "items": [
+        {
+          "value": "Where we are",
+          "label": "[Current situation]\n[Audience need]\n[Opportunity]"
+        },
+        {
+          "value": "Where we\u2019re going",
+          "label": "[Proposed action]\n[Expected outcome]\n[Next milestone]"
+        }
+      ]
+    },
+    {
+      "id": "fh-quote",
+      "layout": "quote",
+      "eyebrow": "04 / A PERSPECTIVE",
+      "title": "[A meaningful insight\nworth sharing.]",
+      "description": "[Speaker name \u00b7 Role]",
+      "notes": "Use an approved, accurately attributed quotation; this placeholder is not a customer endorsement."
+    },
+    {
+      "id": "fh-closing",
+      "layout": "closing",
+      "eyebrow": "THE NEXT STEP",
+      "title": "Let\u2019s look ahead.\nTogether.",
+      "description": "[Your call to action]\n[Contact name \u00b7 Email]",
+      "notes": "Close with a specific next step, its owner, and timing."
+    }
+  ]
+}

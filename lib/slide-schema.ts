@@ -125,7 +125,7 @@ export const slideSchema = z
 export const projectInputSchema = z
   .object({
     name: z.string().trim().min(1).max(160),
-    theme: z.enum(["editorial", "midnight", "botanical"]).default("editorial"),
+    theme: z.enum(["editorial", "midnight", "botanical", "first-horizon"]).default("editorial"),
   })
   .strict();
 export const projectPatchSchema = projectInputSchema
@@ -134,7 +134,7 @@ export const projectPatchSchema = projectInputSchema
 export const deckSchema = z
   .object({
     name: z.string().trim().min(1).max(160),
-    theme: z.enum(["editorial", "midnight", "botanical"]),
+    theme: z.enum(["editorial", "midnight", "botanical", "first-horizon"]),
     slides: z.array(slideSchema).min(1).max(100),
   })
   .strict()

@@ -15,7 +15,7 @@ export type Layout =
   | "diagram"
   | "code"
   | "flowchart";
-export type Theme = "editorial" | "midnight" | "botanical";
+export type Theme = "editorial" | "midnight" | "botanical" | "first-horizon";
 export type FlowData = {
   nodes: {
     id: string;
@@ -148,7 +148,7 @@ export function parseDeck(input: string): Deck {
   if (
     !d ||
     typeof d.name !== "string" ||
-    !["editorial", "midnight", "botanical"].includes(d.theme) ||
+    !["editorial", "midnight", "botanical", "first-horizon"].includes(d.theme) ||
     !Array.isArray(d.slides) ||
     d.slides.length < 1 ||
     d.slides.length > 100
