@@ -1,0 +1,301 @@
+{
+  "name": "A little more possibility",
+  "theme": "editorial",
+  "slides": [
+    {
+      "id": "01",
+      "layout": "cover",
+      "eyebrow": "A FRESH PERSPECTIVE · 2026",
+      "title": "Good ideas.\nGreat possibilities.",
+      "description": "A little curiosity can change everything.\nLet’s see where it takes us.",
+      "notes": "Start with a moment of possibility. Introduce the big idea and invite your audience to imagine what comes next."
+    },
+    {
+      "id": "02",
+      "layout": "statement",
+      "eyebrow": "01 / THE BIG IDEA",
+      "title": "The future belongs\nto the curious.",
+      "description": "Progress starts with a better question. We’re here to challenge the familiar, connect the unexpected, and make room for what’s next.",
+      "notes": "Share the central idea: curiosity is the starting point for meaningful progress."
+    },
+    {
+      "id": "03",
+      "layout": "metrics",
+      "eyebrow": "02 / SMALL STEPS, REAL IMPACT",
+      "title": "A little change.\nA lot of momentum.",
+      "description": "The numbers tell a story. And we’re just getting started.",
+      "notes": "These are illustrative sample metrics. Replace them with the numbers that matter to your audience.",
+      "items": [
+        {
+          "value": "92%",
+          "label": "A clearer direction",
+          "detail": "Teams aligned on a shared vision"
+        },
+        {
+          "value": "3.5×",
+          "label": "More possibilities",
+          "detail": "Ideas turned into experiments"
+        },
+        {
+          "value": "24",
+          "label": "Countries connected",
+          "detail": "Different perspectives. One purpose."
+        }
+      ]
+    },
+    {
+      "id": "04",
+      "layout": "comparison",
+      "eyebrow": "03 / A DIFFERENT WAY FORWARD",
+      "title": "Less of the same.\nMore of what matters.",
+      "description": "A small shift in perspective makes all the difference.",
+      "notes": "Talk through how the approach changes from the familiar to the possible.",
+      "items": [
+        {
+          "value": "The familiar",
+          "label": "Playing it safe\nWorking in silos\nWaiting for perfect"
+        },
+        {
+          "value": "The possible",
+          "label": "Asking what if\nCreating together\nStarting with something"
+        }
+      ]
+    },
+    {
+      "id": "05",
+      "layout": "quote",
+      "eyebrow": "04 / A THOUGHT TO TAKE WITH YOU",
+      "title": "Great things are done by a series of small things brought together.",
+      "description": "Vincent van Gogh",
+      "notes": "Pause here. Let the audience connect this thought to their own work."
+    },
+    {
+      "id": "sequence-reference",
+      "layout": "diagram",
+      "eyebrow": "05 / THE COMPLETE PICTURE",
+      "title": "From checkout to doorstep.",
+      "description": "An end-to-end order journey across ten participants.",
+      "notes": "Zoom into each stage: authentication, inventory, payment, event delivery, and fulfillment. Drag to follow the flow. Use Fit to return to the complete diagram.",
+      "mermaid": "sequenceDiagram\n    autonumber\n    actor User\n    participant App as Web application\n    participant API as API gateway\n    participant Auth as Identity service\n    participant Orders as Order service\n    participant DB as Database\n    participant Pay as Payment provider\n    participant Queue as Event queue\n    participant Stock as Inventory service\n    participant Mail as Notification service\n\n    Note over User,Mail: A complete order journey — request, payment, fulfillment, and recovery\n    User->>App: Review cart and checkout\n    App->>API: POST /checkout with session token\n    API->>Auth: Validate session and permissions\n    Auth->>DB: Look up user and session\n    DB-->>Auth: Active session\n    Auth-->>API: Verified user\n    API->>Orders: Create order (idempotency key)\n    Orders->>DB: Check for an existing request\n    alt Request already processed\n        DB-->>Orders: Existing order\n        Orders-->>API: Return original result\n        API-->>App: Order status\n    else New checkout\n        DB-->>Orders: No duplicate found\n        Orders->>Stock: Reserve cart items (10 minute TTL)\n        Stock->>DB: Atomically reserve available stock\n        DB-->>Stock: Reservation confirmed\n        Stock-->>Orders: Reservation ID\n        Orders->>DB: Save pending order\n        Orders->>Pay: Authorize payment (idempotency key)\n        alt Payment authorized\n            Pay-->>Orders: Authorization ID\n            Orders->>Pay: Capture authorized payment\n            Pay-->>Orders: Payment captured\n            Orders->>DB: Transaction: mark paid and write outbox event\n            DB-->>Orders: Transaction committed\n            Orders-->>API: Order confirmed\n            API-->>App: 201 Created\n            App-->>User: Show confirmation and tracking link\n            loop Outbox delivery until acknowledged\n                Orders->>DB: Read undelivered events\n                DB-->>Orders: OrderPaid event\n                Orders->>Queue: Publish OrderPaid (event ID)\n                Queue-->>Orders: Acknowledged\n                Orders->>DB: Mark event delivered\n            end\n            par Fulfill the order\n                Queue->>Stock: Consume OrderPaid (deduplicate event ID)\n                Stock->>DB: Commit reservation and create shipment\n                DB-->>Stock: Shipment created\n                Stock-->>Queue: Acknowledge fulfillment\n            and Send the receipt\n                Queue->>Mail: Consume OrderPaid (deduplicate event ID)\n                Mail->>DB: Read order and customer details\n                DB-->>Mail: Receipt data\n                Mail-->>User: Email receipt and next steps\n                Mail-->>Queue: Acknowledge notification\n            end\n        else Payment declined\n            Pay-->>Orders: Declined with reason\n            Orders->>Stock: Release reserved items\n            Stock->>DB: Restore available inventory\n            Orders->>DB: Mark order as payment failed\n            Orders-->>API: Payment failed\n            API-->>App: Action required\n            App-->>User: Choose another payment method\n        end\n    end\n    Note over User,Mail: Every stage is observable with a shared correlation ID"
+    },
+    {
+      "id": "github-flow",
+      "layout": "flowchart",
+      "eyebrow": "DEVELOPER WORKFLOW · ONE STEP AT A TIME",
+      "title": "From commit to a passing build.",
+      "description": "Right reveals the next step. Left goes back. Drag to pan and scroll to zoom.",
+      "notes": "Reveal each handoff, then explain the tests-pass decision. Left or Back step reverses the reveal. After the last step, Next moves to the next slide.",
+      "steps": [
+        {
+          "label": "Developer"
+        },
+        {
+          "label": "Commits to branch"
+        },
+        {
+          "label": "GitHub Actions triggered"
+        },
+        {
+          "label": "Checks out the repository"
+        },
+        {
+          "label": "Installs dependencies"
+        },
+        {
+          "label": "Runs tests"
+        },
+        {
+          "label": "Reports a failed check"
+        },
+        {
+          "label": "Builds the application"
+        },
+        {
+          "label": "Publishes the build artifact"
+        }
+      ],
+      "flow": {
+        "nodes": [
+          {
+            "id": "developer",
+            "label": "Developer",
+            "step": 0,
+            "kind": "process",
+            "position": {
+              "x": 0,
+              "y": 0
+            }
+          },
+          {
+            "id": "commit",
+            "label": "Commits to branch",
+            "step": 1,
+            "kind": "process",
+            "position": {
+              "x": 260,
+              "y": 0
+            }
+          },
+          {
+            "id": "trigger",
+            "label": "GitHub Actions triggered",
+            "step": 2,
+            "kind": "process",
+            "position": {
+              "x": 520,
+              "y": 0
+            }
+          },
+          {
+            "id": "checkout",
+            "label": "Checkout repository",
+            "step": 3,
+            "kind": "process",
+            "position": {
+              "x": 780,
+              "y": 0
+            }
+          },
+          {
+            "id": "install",
+            "label": "Install dependencies",
+            "step": 4,
+            "kind": "process",
+            "position": {
+              "x": 1040,
+              "y": 0
+            }
+          },
+          {
+            "id": "tests",
+            "label": "Tests pass?",
+            "step": 5,
+            "kind": "decision",
+            "position": {
+              "x": 1300,
+              "y": 0
+            }
+          },
+          {
+            "id": "failed",
+            "label": "Report failed check",
+            "step": 6,
+            "kind": "process",
+            "position": {
+              "x": 1560,
+              "y": -100
+            }
+          },
+          {
+            "id": "build",
+            "label": "Build application",
+            "step": 7,
+            "kind": "process",
+            "position": {
+              "x": 1560,
+              "y": 100
+            }
+          },
+          {
+            "id": "artifact",
+            "label": "Upload build artifact",
+            "step": 8,
+            "kind": "process",
+            "position": {
+              "x": 1820,
+              "y": 100
+            }
+          }
+        ],
+        "edges": [
+          {
+            "id": "e1",
+            "source": "developer",
+            "target": "commit"
+          },
+          {
+            "id": "e2",
+            "source": "commit",
+            "target": "trigger"
+          },
+          {
+            "id": "e3",
+            "source": "trigger",
+            "target": "checkout"
+          },
+          {
+            "id": "e4",
+            "source": "checkout",
+            "target": "install"
+          },
+          {
+            "id": "e5",
+            "source": "install",
+            "target": "tests"
+          },
+          {
+            "id": "e6",
+            "source": "tests",
+            "target": "failed",
+            "label": "No"
+          },
+          {
+            "id": "e7",
+            "source": "tests",
+            "target": "build",
+            "label": "Yes"
+          },
+          {
+            "id": "e8",
+            "source": "build",
+            "target": "artifact"
+          }
+        ]
+      }
+    },
+    {
+      "id": "github-code",
+      "layout": "code",
+      "eyebrow": "GITHUB ACTIONS · BUILD THE WORKFLOW",
+      "title": "A workflow, revealed line by line.",
+      "description": "Each click adds the next block. Explain the code at your own pace.",
+      "notes": "This illustrative CI workflow assumes an npm project with test and build scripts. Update runtime and action versions for your repository.",
+      "fileName": ".github/workflows/ci.yml",
+      "language": "yaml",
+      "steps": [
+        {
+          "label": "Name the workflow",
+          "code": "name: Branch CI\n"
+        },
+        {
+          "label": "Trigger on branch pushes",
+          "code": "\non:\n  push:\n    branches: ['**']\n\npermissions:\n  contents: read\n"
+        },
+        {
+          "label": "Choose a runner",
+          "code": "\njobs:\n  check:\n    runs-on: ubuntu-latest\n    steps:\n"
+        },
+        {
+          "label": "Check out the code",
+          "code": "      - name: Checkout repository\n        uses: actions/checkout@v4\n"
+        },
+        {
+          "label": "Prepare Node.js",
+          "code": "      - name: Set up Node.js\n        uses: actions/setup-node@v4\n        with:\n          node-version: '22'\n          cache: npm\n"
+        },
+        {
+          "label": "Install, test, and build",
+          "code": "      - run: npm ci\n      - run: npm test\n      - run: npm run build\n"
+        }
+      ]
+    },
+    {
+      "id": "06",
+      "layout": "closing",
+      "eyebrow": "THE NEXT CHAPTER",
+      "title": "Let’s make\nsomething matter.",
+      "description": "One idea. One conversation. One next step.\nThe possibility starts with you.",
+      "notes": "Close with a clear next step and open the floor for questions."
+    }
+  ]
+}

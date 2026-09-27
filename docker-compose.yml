@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: folio
+      POSTGRES_PASSWORD: folio_local
+      POSTGRES_DB: folio
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - folio_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U folio -d folio"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+volumes:
+  folio_pgdata:
