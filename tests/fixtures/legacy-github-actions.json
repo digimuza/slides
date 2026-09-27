@@ -1,0 +1,90 @@
+{
+  "name": "From commit to CI",
+  "theme": "midnight",
+  "slides": [
+    {
+      "id": "github-flow",
+      "layout": "diagram",
+      "eyebrow": "DEVELOPER WORKFLOW · ONE STEP AT A TIME",
+      "title": "From commit to a passing build.",
+      "description": "Click the chart or press Left / Right to reveal the next step. Zoom in to explore.",
+      "notes": "Reveal each handoff, then explain the tests-pass decision. Up or Back step reverses the reveal. After the last step, Next moves to the next slide.",
+      "advanceKey": "left",
+      "mermaid": "flowchart LR\nDeveloper[\"Developer\"]\nDeveloper --> Commit[\"Commits to branch\"]\nCommit --> Trigger[\"GitHub Actions triggered\"]\nTrigger --> Checkout[\"Checkout repository\"]\nCheckout --> Install[\"Install dependencies\"]\nInstall --> Tests{\"Tests pass?\"}\nTests -->|No| Failed[\"Report failed check\"]\nTests -->|Yes| Build[\"Build application\"]\nBuild --> Artifact[\"Upload build artifact\"]",
+      "steps": [
+        {
+          "label": "Developer",
+          "mermaid": "flowchart LR\nDeveloper[\"Developer\"]"
+        },
+        {
+          "label": "Commits to branch",
+          "mermaid": "flowchart LR\nDeveloper[\"Developer\"]\nDeveloper --> Commit[\"Commits to branch\"]"
+        },
+        {
+          "label": "GitHub Actions triggered",
+          "mermaid": "flowchart LR\nDeveloper[\"Developer\"]\nDeveloper --> Commit[\"Commits to branch\"]\nCommit --> Trigger[\"GitHub Actions triggered\"]"
+        },
+        {
+          "label": "Checks out the repository",
+          "mermaid": "flowchart LR\nDeveloper[\"Developer\"]\nDeveloper --> Commit[\"Commits to branch\"]\nCommit --> Trigger[\"GitHub Actions triggered\"]\nTrigger --> Checkout[\"Checkout repository\"]"
+        },
+        {
+          "label": "Installs dependencies",
+          "mermaid": "flowchart LR\nDeveloper[\"Developer\"]\nDeveloper --> Commit[\"Commits to branch\"]\nCommit --> Trigger[\"GitHub Actions triggered\"]\nTrigger --> Checkout[\"Checkout repository\"]\nCheckout --> Install[\"Install dependencies\"]"
+        },
+        {
+          "label": "Runs tests",
+          "mermaid": "flowchart LR\nDeveloper[\"Developer\"]\nDeveloper --> Commit[\"Commits to branch\"]\nCommit --> Trigger[\"GitHub Actions triggered\"]\nTrigger --> Checkout[\"Checkout repository\"]\nCheckout --> Install[\"Install dependencies\"]\nInstall --> Tests{\"Tests pass?\"}"
+        },
+        {
+          "label": "Reports a failed check",
+          "mermaid": "flowchart LR\nDeveloper[\"Developer\"]\nDeveloper --> Commit[\"Commits to branch\"]\nCommit --> Trigger[\"GitHub Actions triggered\"]\nTrigger --> Checkout[\"Checkout repository\"]\nCheckout --> Install[\"Install dependencies\"]\nInstall --> Tests{\"Tests pass?\"}\nTests -->|No| Failed[\"Report failed check\"]"
+        },
+        {
+          "label": "Builds the application",
+          "mermaid": "flowchart LR\nDeveloper[\"Developer\"]\nDeveloper --> Commit[\"Commits to branch\"]\nCommit --> Trigger[\"GitHub Actions triggered\"]\nTrigger --> Checkout[\"Checkout repository\"]\nCheckout --> Install[\"Install dependencies\"]\nInstall --> Tests{\"Tests pass?\"}\nTests -->|No| Failed[\"Report failed check\"]\nTests -->|Yes| Build[\"Build application\"]"
+        },
+        {
+          "label": "Publishes the build artifact",
+          "mermaid": "flowchart LR\nDeveloper[\"Developer\"]\nDeveloper --> Commit[\"Commits to branch\"]\nCommit --> Trigger[\"GitHub Actions triggered\"]\nTrigger --> Checkout[\"Checkout repository\"]\nCheckout --> Install[\"Install dependencies\"]\nInstall --> Tests{\"Tests pass?\"}\nTests -->|No| Failed[\"Report failed check\"]\nTests -->|Yes| Build[\"Build application\"]\nBuild --> Artifact[\"Upload build artifact\"]"
+        }
+      ]
+    },
+    {
+      "id": "github-code",
+      "layout": "code",
+      "eyebrow": "GITHUB ACTIONS · BUILD THE WORKFLOW",
+      "title": "A workflow, revealed line by line.",
+      "description": "Each click adds the next block. Explain the code at your own pace.",
+      "notes": "This illustrative CI workflow assumes an npm project with test and build scripts. Update runtime and action versions for your repository.",
+      "fileName": ".github/workflows/ci.yml",
+      "language": "yaml",
+      "steps": [
+        {
+          "label": "Name the workflow",
+          "code": "name: Branch CI\n"
+        },
+        {
+          "label": "Trigger on branch pushes",
+          "code": "\non:\n  push:\n    branches: ['**']\n\npermissions:\n  contents: read\n"
+        },
+        {
+          "label": "Choose a runner",
+          "code": "\njobs:\n  check:\n    runs-on: ubuntu-latest\n    steps:\n"
+        },
+        {
+          "label": "Check out the code",
+          "code": "      - name: Checkout repository\n        uses: actions/checkout@v4\n"
+        },
+        {
+          "label": "Prepare Node.js",
+          "code": "      - name: Set up Node.js\n        uses: actions/setup-node@v4\n        with:\n          node-version: '22'\n          cache: npm\n"
+        },
+        {
+          "label": "Install, test, and build",
+          "code": "      - run: npm ci\n      - run: npm test\n      - run: npm run build\n"
+        }
+      ]
+    }
+  ]
+}
