@@ -174,3 +174,11 @@ The theme includes the official logo on every slide, white backgrounds, blue acc
 Reviewed [First Horizon’s website](https://www.firsthorizon.com/) on September 27, 2026. Its [site stylesheet](https://www.firsthorizon.com/_next/static/css/2f4fd6d370ce6ca8.css) defines primary blue `#0050B5`, secondary navy `#002257`, and light blue `#E5F1FF`. The site pairs Berlingske Slab headings with Untitled Sans body copy. This template uses local Georgia and Arial fallbacks to echo that hierarchy without redistributing those fonts. The blue horizon artwork is an original slide adaptation, not an official brand asset.
 
 The unchanged [official SVG logo](https://fhb-p-001.sitecorecontenthub.cloud/api/public/content/dlkejflct4kyw610izsifq-first-horizon-logo.svg?v=cb3d7976) is stored at `public/brands/first-horizon/logo.svg` so presentations do not depend on a remote image host. Its red symbol is preserved while the slide accents remain blue. First Horizon retains ownership of its logo. This is a website-informed presentation template, not an official brand guideline or bank publication.
+
+## Organize, find, and rehearse
+
+Use **Move slide earlier / later** in the canvas toolbar to reorder the selected slide. The selected slide follows its new position, its ID stays the same, and the order autosaves locally. Use **Save changes** to store the new order in a project.
+
+The library supports case-insensitive search by slide title, project name, or source ID. Combine search with **Slide layout**, see the matching slide count, and use **Clear filters** to return to all projects. Filters remain applied during live library refreshes.
+
+Use **Export all speaker notes** below the notes editor to download a UTF-8 text rehearsal sheet. It includes the deck name, numbered slide titles in the current order, and notes for every slide; slides without notes are marked explicitly.
