@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   ArrowDownToLine,
+  ArrowUp,
+  ArrowDown,
   ArrowLeft,
   ArrowRight,
   Check,
@@ -560,6 +562,33 @@ export default function Studio() {
     URL.revokeObjectURL(url);
     setToast("Your deck has been exported");
   }
+  function moveSlide(offset: number) {
+    const target = active + offset;
+    if (target < 0 || target >= deck.slides.length) return;
+    setDeck((current) => {
+      const slides = [...current.slides];
+      [slides[active], slides[target]] = [slides[target], slides[active]];
+      return { ...current, slides };
+    });
+    setActive(target);
+    setToast(`Slide moved to position ${target + 1}`);
+  }
+  function downloadNotes() {
+    const text = [
+      deck.name,
+      "=".repeat(40),
+      ...deck.slides.map((s, i) =>
+        `\n${i + 1}. ${s.title.replace(/\n/g, " ")}\n${s.notes.trim() || "(No speaker notes)"}`,
+      ),
+    ].join("\n");
+    const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${deck.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-notes.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+    setToast("Speaker notes exported in slide order");
+  }
   async function present() {
     setPresenting(true);
     try {
@@ -758,6 +787,12 @@ export default function Studio() {
               <strong>Slide {String(active + 1).padStart(2, "0")}</strong>
             </div>
             <div className="toolbar-right">
+              <button className="icon-button" aria-label="Move slide earlier" title="Move slide earlier" disabled={active === 0} onClick={() => moveSlide(-1)}>
+                <ArrowUp size={15} />
+              </button>
+              <button className="icon-button" aria-label="Move slide later" title="Move slide later" disabled={active === deck.slides.length - 1} onClick={() => moveSlide(1)}>
+                <ArrowDown size={15} />
+              </button>
               <span className="aspect-badge">16:9</span>
               <span className="toolbar-rule" />
               <button
@@ -880,6 +915,9 @@ export default function Studio() {
                 placeholder="Add a thought, a reminder, a little inspiration…"
               />
             )}
+            <button className="button notes-export" onClick={downloadNotes}>
+              <ArrowDownToLine size={14} /> Export all speaker notes
+            </button>
             <span className="notes-private">
               Just for you. Not visible while presenting.
             </span>

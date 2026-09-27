@@ -24,6 +24,20 @@ export default function LibraryPreview({ full = false }: { full?: boolean }) {
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
+  const [query, setQuery] = useState("");
+  const [layout, setLayout] = useState("");
+  const term = query.trim().toLocaleLowerCase();
+  const filteredSlides = slides.filter((slide) =>
+    (!layout || slide.layout === layout) &&
+    [slide.title, slide.projectName, slide.sourceId].some((value) =>
+      value.toLocaleLowerCase().includes(term),
+    ),
+  );
+  const filteredProjects = projects.filter((project) =>
+    filteredSlides.some((slide) => slide.projectId === project.id) ||
+    (!layout && project.name.toLocaleLowerCase().includes(term)),
+  );
+  const hasFilters = Boolean(term || layout);
   const refresh = useCallback(async () => {
     try {
       const [p, s] = await Promise.all([
@@ -128,6 +142,23 @@ export default function LibraryPreview({ full = false }: { full?: boolean }) {
           </button>
         </form>
       )}
+      <div className="library-filters">
+        <label>
+          Search saved slides
+          <input type="search" placeholder="Title, project, or slide ID" value={query} onChange={(event) => setQuery(event.target.value)} />
+        </label>
+        <label>
+          Slide layout
+          <select value={layout} onChange={(event) => setLayout(event.target.value)}>
+            <option value="">All layouts</option>
+            {["cover", "statement", "metrics", "comparison", "quote", "closing", "diagram", "code", "flowchart"].map((value) =>
+              <option key={value} value={value}>{value}</option>,
+            )}
+          </select>
+        </label>
+        {hasFilters && <button className="button" onClick={() => { setQuery(""); setLayout(""); }}>Clear filters</button>}
+      </div>
+      {!loading && !error && hasFilters && <p role="status">{filteredSlides.length} matching {filteredSlides.length === 1 ? "slide" : "slides"}</p>}
       {error ? (
         <div className="library-state" role="alert">
           {error}{" "}
@@ -147,7 +178,8 @@ export default function LibraryPreview({ full = false }: { full?: boolean }) {
         </div>
       ) : (
         <div className="project-groups">
-          {projects.map((p) => (
+          {filteredProjects.length === 0 && <div className="library-state"><strong>No matching slides</strong><span>Try another search or clear the filters.</span></div>}
+          {filteredProjects.map((p) => (
             <div className="project-group" key={p.id}>
               <div className="project-header">
                 <div>
@@ -162,7 +194,7 @@ export default function LibraryPreview({ full = false }: { full?: boolean }) {
                 </a>
               </div>
               <div className="saved-slide-grid">
-                {slides
+                {filteredSlides
                   .filter((s) => s.projectId === p.id)
                   .map((s) => (
                     <a

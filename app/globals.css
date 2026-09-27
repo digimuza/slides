@@ -2715,3 +2715,9 @@ kbd {
 .swatch-first-horizon i { background: #002257; }
 .swatch-first-horizon i:nth-of-type(2) { background: #e5f1ff; }
 .swatch-first-horizon i:nth-of-type(3) { background: #0050b5; }
+
+/* Keep library discovery controls usable on both page and editor layouts. */
+.library-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 20px 0; }
+.library-filters label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; flex: 1 1 180px; }
+.library-filters input, .library-filters select { width: 100%; min-width: 0; padding: 10px 12px; border: 1px solid #d8d5ce; border-radius: 7px; background: white; color: #292824; font: inherit; }
+.notes-export { margin: 8px 0; font-size: 12px; }
