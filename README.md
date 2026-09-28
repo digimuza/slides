@@ -161,6 +161,72 @@ All API responses use `{ "data": ... }` on success or `{ "error": { "code", "mes
 
 This local workspace has no user accounts or API authentication. Add authentication and project ownership before exposing these endpoints to other users or the public internet.
 
+## MCP for agents
+
+The app serves a stateless [MCP Streamable HTTP](https://ts.sdk.modelcontextprotocol.io/server) endpoint at
+`http://localhost:3011/api/mcp`. Start the app and PostgreSQL as described above;
+no separate MCP process is needed. In your agent's MCP settings, add a Streamable
+HTTP server named `folio` with that URL (adjust the port to match your app).
+For clients that accept `mcpServers` JSON configuration:
+
+```json
+{
+  "mcpServers": {
+    "folio": { "url": "http://localhost:3011/api/mcp" }
+  }
+}
+```
+
+| Tool | Purpose |
+| --- | --- |
+| `list_projects` | Discover saved projects and their UUIDs |
+| `create_project` | Create a project with a name and optional theme |
+| `list_slides` | Read a project's ordered slides and database UUIDs |
+| `get_slide` | Read slide content and its current `etag` |
+| `create_slide` | Append a validated slide to a project |
+| `update_slide` | Merge changed fields, requiring the last-read `etag` |
+| `replace_slide` | Replace complete slide content, requiring `etag` |
+| `get_deck` | Read a complete deck and its `etag` |
+| `save_deck` | Atomically save deck content, theme, and order, requiring `etag` |
+
+For example, call `create_project` with `{"name":"Quarterly update"}`, then
+use its returned `data.id` in `create_slide`:
+
+```json
+{
+  "projectId": "<project UUID>",
+  "slide": {
+    "id": "intro",
+    "layout": "cover",
+    "title": "Quarterly update",
+    "eyebrow": "Q3",
+    "description": "Progress and next steps",
+    "notes": "Introduce the team."
+  }
+}
+```
+
+Use the returned slide's database UUID as `slideId` in `get_slide`, then call
+`update_slide` with `{"slideId":"<slide UUID>","etag":"<exact returned etag>","changes":{"title":"Updated title"}}`.
+The database UUID differs from the slide's JSON `id` (`intro` above).
+All layouts, including charts, code, Mermaid, and flowcharts, use the same schemas
+as the REST API. Tool discovery includes their input schemas.
+
+Tool results include readable JSON and structured content (`data` and, on reads
+and updates, `etag`). API failures set `isError` and include `error.code`,
+`error.message`, and validation issues when applicable. On `STALE_REVISION`, read
+the latest content before deciding how to reapply edits. Partial updates replace
+arrays as a whole; use `replace_slide` to remove optional fields. `save_deck`
+preserves URLs for matching source IDs and retains existing slides omitted from
+the input, matching the REST API. Read `get_deck` even for a new empty project
+to obtain the revision required for its first bulk save.
+
+Changes persist immediately to PostgreSQL and appear through existing live
+refresh. Browser-only drafts must first be saved to a project. The endpoint has
+the same local, unauthenticated scope as the REST API above; cross-origin browser
+requests are rejected. It uses JSON responses without persistent sessions or an
+SSE subscription (`GET` and `DELETE` return 405).
+
 ## First Horizon template
 
 ![First Horizon cover slide](docs/first-horizon-preview.png)
