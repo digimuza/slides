@@ -1,0 +1,537 @@
+{
+  "name": "Transmit CI/CD — First Horizon",
+  "theme": "first-horizon",
+  "slides": [
+    {
+      "id": "transmit-cover",
+      "layout": "cover",
+      "eyebrow": "TRANSMIT · CI / CD",
+      "title": "Transmit CI/CD.\nFrom POC to delivery.",
+      "description": "Where we are today.\nThe repository, capabilities and weekly development flow.",
+      "notes": "Start with the status of the GitHub Actions proof of concept. Then introduce transmit-infrastructure and explain how sandbox changes become a reviewed weekly dev release."
+    },
+    {
+      "id": "platform-roadmap",
+      "layout": "comparison",
+      "eyebrow": "01 / DELIVERY STATUS",
+      "title": "Proven in the POC.\nNext steps underway.",
+      "description": "GitHub Actions hosts the current proof of concept.",
+      "notes": "The POC covers Document, Lint, Build, Sync and Debug. Work in progress is Bitbucket plus Ship CI/CD, and E2E test execution after a successful sync. Post-sync Playwright verification described later is the intended flow under development.",
+      "items": [
+        {
+          "value": "POC",
+          "label": "GitHub Actions",
+          "detail": "Document · Lint · Build · Sync · Debug"
+        },
+        {
+          "value": "In progress",
+          "label": "Bitbucket + Ship CI/CD",
+          "detail": "E2E test execution after successful sync."
+        }
+      ]
+    },
+    {
+      "id": "infrastructure-repository",
+      "layout": "statement",
+      "eyebrow": "02 / THE REPOSITORY",
+      "title": "transmit-infrastructure",
+      "description": "The repository behind journey development, validation and tenant synchronization.",
+      "notes": "Introduce transmit-infrastructure as the repository supporting this workflow. It brings journey and Transmit configuration changes into version control, records changes from developer PRs and the sandbox portal, and provides the basis for comparing sandbox with dev. The GitHub Actions POC demonstrates Document, Lint, Build, Sync and Debug. Do not imply a particular folder structure or additional implementation details."
+    },
+    {
+      "id": "core-capabilities",
+      "layout": "comparison",
+      "eyebrow": "03 / CORE CAPABILITIES",
+      "title": "Four core capabilities.",
+      "description": "Develop and validate changes. Deploy to sandbox and dev. Verification is in progress.",
+      "notes": "Walk through the capabilities in order. Develop: code or portal changes. Validate: Journey Man Lint, build, unit tests, journey integrity checks and dry import. Deploy: tenant synchronization is scoped to sandbox and dev only. Verify: automated E2E execution after successful sync is in progress. The previously specified lint/build scope includes sandbox, dev and production; that does not extend deployment scope to production.",
+      "items": [
+        {
+          "value": "Develop",
+          "label": "Code + portal",
+          "detail": "Create and maintain journeys and configuration."
+        },
+        {
+          "value": "Validate",
+          "label": "Automated PR checks",
+          "detail": "Lint, build, unit test and dry import."
+        },
+        {
+          "value": "Deploy",
+          "label": "Sandbox / dev only",
+          "detail": "Synchronize the target tenant."
+        },
+        {
+          "value": "Verify",
+          "label": "In progress",
+          "detail": "Playwright E2E after successful sync."
+        }
+      ]
+    },
+    {
+      "id": "branch-tenant-mapping",
+      "layout": "comparison",
+      "eyebrow": "04 / BRANCH → TENANT",
+      "title": "Each branch maps\nto a Transmit tenant.",
+      "description": "After Bitbucket + Ship CI/CD is complete, connect the remaining environments.",
+      "notes": "Explain the branch-to-tenant mapping. The sandbox branch is connected to the Develop (sandbox) tenant. The dev branch is connected to First Horizon Dev. The test branch maps to First Horizon Test but is not connected. The production branch maps to First Horizon Production but is not connected. Once the Bitbucket migration and Ship CI/CD work are complete, connect test and production. This mapping describes tenant connections; it does not change the previously stated lint and build scope.",
+      "items": [
+        {
+          "value": "sandbox",
+          "label": "Develop (sandbox) tenant",
+          "detail": "Connected"
+        },
+        {
+          "value": "dev",
+          "label": "First Horizon Dev",
+          "detail": "Connected"
+        },
+        {
+          "value": "test",
+          "label": "First Horizon Test",
+          "detail": "Not connected"
+        },
+        {
+          "value": "production",
+          "label": "First Horizon Production",
+          "detail": "Not connected"
+        }
+      ]
+    },
+    {
+      "id": "shared-history",
+      "layout": "comparison",
+      "eyebrow": "05 / DEVELOP IN SANDBOX",
+      "title": "Two ways to develop.\nOne sandbox history.",
+      "description": "Every change is recorded as a sandbox commit with a verification status.",
+      "notes": "Developers either open a PR against sandbox or work on a journey in the Transmit sandbox portal. Developer changes enter sandbox after PR validation and merge. Portal changes are automatically synchronized as commits into sandbox. Each change has a commit and verification status. This status reflects applicable checks; it must not be described as proof that the planned post-sync E2E suite has already run.",
+      "items": [
+        {
+          "value": "Developer",
+          "label": "Open PR → sandbox",
+          "detail": "Validate and merge code changes into the sandbox branch."
+        },
+        {
+          "value": "Portal",
+          "label": "Edit a sandbox journey",
+          "detail": "Automatically capture portal changes as sandbox commits."
+        }
+      ]
+    },
+    {
+      "id": "weekly-promotion",
+      "layout": "flowchart",
+      "eyebrow": "06 / WEEKLY PROMOTION",
+      "title": "One week. One PR. Into dev.",
+      "description": "Four contributors → sandbox → weekly PR → validation → review → dev import → E2E.",
+      "notes": "Read the complete workflow from left to right. Sree merges one PR to sandbox. Ram updates a journey in the portal, generating an automatic sandbox commit. Rush merges two PRs. Andrius merges one PR. All changes accumulate in sandbox with a commit and verification status. At the end of the week, create one consolidated PR from sandbox into dev showing all changes between the environments. Run Journey Man Lint, build and validation, then review the changes with AI. After the checks and review, merge the PR and import into dev. Immediately after a successful import, execute the full Playwright test suite against dev. Post-sync E2E execution is in progress. The complete diagram is visible when this slide opens; use Fullscreen for a larger view.",
+      "steps": [
+        {
+          "label": "Full workflow · Playwright execution after successful sync is in progress"
+        }
+      ],
+      "flow": {
+        "nodes": [
+          {
+            "id": "sree",
+            "label": "Sree\nMerges 1 PR",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "step": 0
+          },
+          {
+            "id": "ram",
+            "label": "Ram\nUpdates portal",
+            "position": {
+              "x": 0,
+              "y": 140
+            },
+            "step": 0
+          },
+          {
+            "id": "rush",
+            "label": "Rush\nMerges 2 PRs",
+            "position": {
+              "x": 0,
+              "y": 280
+            },
+            "step": 0
+          },
+          {
+            "id": "andrius",
+            "label": "Andrius\nMerges 1 PR",
+            "position": {
+              "x": 0,
+              "y": 420
+            },
+            "step": 0
+          },
+          {
+            "id": "sandbox",
+            "label": "Sandbox\nCommits + status",
+            "position": {
+              "x": 290,
+              "y": 210
+            },
+            "step": 0
+          },
+          {
+            "id": "weekly-pr",
+            "label": "End of week\nOne PR: sandbox → dev",
+            "position": {
+              "x": 580,
+              "y": 210
+            },
+            "step": 0
+          },
+          {
+            "id": "validate",
+            "label": "PR pipeline\nLint + build + validate",
+            "position": {
+              "x": 870,
+              "y": 210
+            },
+            "step": 0
+          },
+          {
+            "id": "review",
+            "label": "Review changes\nAI review",
+            "position": {
+              "x": 1160,
+              "y": 210
+            },
+            "step": 0
+          },
+          {
+            "id": "import-dev",
+            "label": "Merge → import\nDev environment",
+            "position": {
+              "x": 1450,
+              "y": 210
+            },
+            "step": 0
+          },
+          {
+            "id": "playwright",
+            "label": "Playwright · in progress\nFull E2E suite",
+            "position": {
+              "x": 1740,
+              "y": 210
+            },
+            "step": 0
+          }
+        ],
+        "edges": [
+          {
+            "id": "sree-sandbox",
+            "source": "sree",
+            "target": "sandbox",
+            "label": "PR merge"
+          },
+          {
+            "id": "ram-sandbox",
+            "source": "ram",
+            "target": "sandbox",
+            "label": "Auto-commit"
+          },
+          {
+            "id": "rush-sandbox",
+            "source": "rush",
+            "target": "sandbox",
+            "label": "2 PR merges"
+          },
+          {
+            "id": "andrius-sandbox",
+            "source": "andrius",
+            "target": "sandbox",
+            "label": "PR merge"
+          },
+          {
+            "id": "sandbox-weekly-pr",
+            "source": "sandbox",
+            "target": "weekly-pr",
+            "label": "All changes"
+          },
+          {
+            "id": "weekly-pr-validate",
+            "source": "weekly-pr",
+            "target": "validate"
+          },
+          {
+            "id": "validate-review",
+            "source": "validate",
+            "target": "review",
+            "label": "Checks pass"
+          },
+          {
+            "id": "review-import-dev",
+            "source": "review",
+            "target": "import-dev"
+          },
+          {
+            "id": "import-dev-playwright",
+            "source": "import-dev",
+            "target": "playwright",
+            "label": "Sync succeeds"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dev-release",
+      "layout": "flowchart",
+      "eyebrow": "07 / DEPLOY TO DEV",
+      "title": "Validate. Review.\nImport into dev.",
+      "description": "Run PR checks, review all changes, then merge and import into dev.",
+      "notes": "This slide expands the release stages from the complete workflow. First, Journey Man Lint, build and validation must pass. Then review the complete sandbox-to-dev changes with AI. Merge the PR and import into dev. Immediately after a successful import, the intended verification executes the full Playwright suite against dev; this E2E execution remains in progress.",
+      "steps": [
+        {
+          "label": "PR pipeline Lint + build + validate"
+        },
+        {
+          "label": "Review changes AI review"
+        },
+        {
+          "label": "Merge & import Dev environment"
+        },
+        {
+          "label": "Verify · in progress Full Playwright suite"
+        }
+      ],
+      "flow": {
+        "nodes": [
+          {
+            "id": "n0",
+            "label": "PR pipeline\nLint + build + validate",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "step": 0
+          },
+          {
+            "id": "n1",
+            "label": "Review changes\nAI review",
+            "position": {
+              "x": 290,
+              "y": 0
+            },
+            "step": 1
+          },
+          {
+            "id": "n2",
+            "label": "Merge & import\nDev environment",
+            "position": {
+              "x": 580,
+              "y": 0
+            },
+            "step": 2
+          },
+          {
+            "id": "n3",
+            "label": "Verify · in progress\nFull Playwright suite",
+            "position": {
+              "x": 870,
+              "y": 0
+            },
+            "step": 3
+          }
+        ],
+        "edges": [
+          {
+            "id": "e0",
+            "source": "n0",
+            "target": "n1"
+          },
+          {
+            "id": "e1",
+            "source": "n1",
+            "target": "n2"
+          },
+          {
+            "id": "e2",
+            "source": "n2",
+            "target": "n3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "journey-man",
+      "layout": "metrics",
+      "eyebrow": "08 / JOURNEY MAN LINT",
+      "title": "Consistent journeys.\nEnforced automatically.",
+      "description": "Journey Man Lint runs for sandbox, dev and production.",
+      "notes": "Journey Man Lint is our tool for maintaining coding standards across journeys. It contains 34 rules. Journey Man Lint and the build run against sandbox, dev and production. This is the initial lint gate; a later pass checks journey references and structure after the build is included. Security review is a separate capability still being pursued. Deployment is currently scoped to sandbox and dev only; lint/build coverage for production does not imply production deployment.",
+      "items": [
+        {
+          "value": "34",
+          "label": "Journey Man Lint rules",
+          "detail": "Maintain coding standards across journeys."
+        },
+        {
+          "value": "PR",
+          "label": "Automatic validation",
+          "detail": "Run checks before changes merge into sandbox, dev or production."
+        }
+      ]
+    },
+    {
+      "id": "build-and-test",
+      "layout": "flowchart",
+      "eyebrow": "09 / BUILD & UNIT TEST",
+      "title": "Test the code we ship.",
+      "description": "Build for sandbox, dev and production. Unit test the bundled TypeScript modules.",
+      "notes": "Journey Man Lint and the build execute against sandbox, dev and production. Explain the order: bundle TypeScript modules, run automated unit tests against the built version, include the build in journeys, then generate metadata. Testing the built output is a key part of the process. Deployment remains limited to sandbox and dev.",
+      "steps": [
+        {
+          "label": "Bundle TypeScript modules"
+        },
+        {
+          "label": "Unit test Built version"
+        },
+        {
+          "label": "Include build In journeys"
+        },
+        {
+          "label": "Generate Metadata"
+        }
+      ],
+      "flow": {
+        "nodes": [
+          {
+            "id": "n0",
+            "label": "Bundle\nTypeScript modules",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "step": 0
+          },
+          {
+            "id": "n1",
+            "label": "Unit test\nBuilt version",
+            "position": {
+              "x": 290,
+              "y": 0
+            },
+            "step": 1
+          },
+          {
+            "id": "n2",
+            "label": "Include build\nIn journeys",
+            "position": {
+              "x": 580,
+              "y": 0
+            },
+            "step": 2
+          },
+          {
+            "id": "n3",
+            "label": "Generate\nMetadata",
+            "position": {
+              "x": 870,
+              "y": 0
+            },
+            "step": 3
+          }
+        ],
+        "edges": [
+          {
+            "id": "e0",
+            "source": "n0",
+            "target": "n1"
+          },
+          {
+            "id": "e1",
+            "source": "n1",
+            "target": "n2"
+          },
+          {
+            "id": "e2",
+            "source": "n2",
+            "target": "n3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "import-readiness",
+      "layout": "comparison",
+      "eyebrow": "10 / IMPORT READINESS",
+      "title": "Complete journeys.\nReady for import.",
+      "description": "After packaging, validate journey integrity and perform a Transmit dry import.",
+      "notes": "Once the build is included and metadata is generated, lint every journey reference and check for missing fields or branches. Then run a Transmit dry import. These are pre-merge checks. A dry import is followed by actual tenant synchronization only after merge.",
+      "items": [
+        {
+          "value": "Check",
+          "label": "Journey integrity",
+          "detail": "Validate references and detect missing fields or branches."
+        },
+        {
+          "value": "Dry import",
+          "label": "Transmit validation",
+          "detail": "Perform a dry import before merge and tenant synchronization."
+        }
+      ]
+    },
+    {
+      "id": "e2e-recovery",
+      "layout": "comparison",
+      "eyebrow": "11 / VERIFY · IN PROGRESS",
+      "title": "Verify dev immediately\nafter a successful sync.",
+      "description": "In progress: execute the full Playwright suite against the updated dev environment.",
+      "notes": "The intended behavior is for merge into dev to initiate synchronization and then immediate environment verification with the full Playwright suite. E2E execution after successful sync is still in progress. In the planned failure path, revert the commit, restore the tenant through synchronization, reopen the PR and attach the Playwright results. The repository platform may require a linked replacement PR instead of reopening a merged PR; that implementation detail remains to be resolved. Do not present automated recovery as already delivered.",
+      "items": [
+        {
+          "value": "Pass",
+          "label": "Dev verification complete",
+          "detail": "Full Playwright suite passes against the synced environment."
+        },
+        {
+          "value": "Fail",
+          "label": "Planned recovery",
+          "detail": "Revert, reopen the PR and attach Playwright results."
+        }
+      ]
+    },
+    {
+      "id": "ai-opportunity",
+      "layout": "comparison",
+      "eyebrow": "12 / AI CAPABILITIES",
+      "title": "Give AI the context\nto help engineers.",
+      "description": "AI reviews the weekly PR. Requirements and logs also support journey engineering.",
+      "notes": "AI performs a review of the sandbox-to-dev PR in the described development sequence. Beyond review, access to versioned journeys, requirements and logs creates the opportunity for AI to help build, maintain, update and debug journeys and Transmit configuration. The POC includes debugging. AI PR review is distinct from the secure code review capability that is still being pursued.",
+      "items": [
+        {
+          "value": "Build & evolve",
+          "label": "Journeys + configuration",
+          "detail": "Use requirements and versioned code to support creation, maintenance and updates."
+        },
+        {
+          "value": "Debug",
+          "label": "Logs + requirements",
+          "detail": "Connect observed behavior to intended outcomes and propose fixes."
+        }
+      ]
+    },
+    {
+      "id": "security-gap",
+      "layout": "statement",
+      "eyebrow": "13 / SECURITY REVIEW",
+      "title": "The next control\nto bring into the pipeline.",
+      "description": "Secure code review is not currently performed on Transmit code.\nWork to change this is underway.",
+      "notes": "State the gap clearly. Lint, unit tests, dry import and E2E tests do not establish that secure code review is in place. The effort to add it is in motion; no tool, coverage, owner or completion date has been specified."
+    },
+    {
+      "id": "transmit-close",
+      "layout": "closing",
+      "eyebrow": "THE PATH FORWARD",
+      "title": "From sandbox changes\nto a verified dev release.",
+      "description": "Complete Bitbucket + Ship CI/CD adoption.\nEnable the full Playwright suite after successful sync.",
+      "notes": "Recap the GitHub Actions POC: Document, Lint, Build, Sync and Debug. Development changes arrive through sandbox PRs or the portal, and each has a commit and verification status. At week end, open the sandbox-to-dev PR, review all changes with AI, pass the pipeline, merge and synchronize dev. Finish with the in-progress work: platform migration and post-sync E2E verification. Deployment currently covers sandbox and dev only; secure code review remains a separate effort underway."
+    }
+  ]
+}

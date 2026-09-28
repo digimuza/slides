@@ -1,0 +1,7 @@
+
+
+
+I want to have a slide generator. There are two requirements:
+1. I will want to have different templates based on project. Right now, we will have the first Horizon template.
+2. I want to generate slides using JSON. Those slides should be able to represent tables, charts, sequence diagrams, and SVG images. I would like to have pan and zoom to explore the SVG image, or that SVG image will probably be a Mermaid sequence diagram, a D2 sequence diagram, or any type of sequence diagram. I would like to have a regular slide with multiple columns that explains certain ideas, and you can think of other ways to represent the entire page.
+The page should accept JSON and return some kind of URL. Think about how I will use this with AI agents. The goal is not for me to create slides. The goal is for AI to actually provide a JSON update and do all kinds of things with that. I would really prefer some kind of updates in real time.

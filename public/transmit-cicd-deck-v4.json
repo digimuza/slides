@@ -1,0 +1,532 @@
+{
+  "name": "Transmit CI/CD — First Horizon",
+  "theme": "first-horizon",
+  "slides": [
+    {
+      "id": "transmit-cover",
+      "layout": "cover",
+      "eyebrow": "TRANSMIT · CI / CD",
+      "title": "Transmit CI/CD.\nFrom POC to delivery.",
+      "description": "Where we are today.\nThe repository, capabilities and weekly development flow.",
+      "notes": "Today I’ll walk through how we’re bringing Transmit journeys and configuration into a repeatable delivery process. I’ll start with what we’ve demonstrated in the GitHub Actions proof of concept and what is still in progress. Then I’ll show how the repository connects to our tenants, how developers can work through the portal or with AI, and how we validate and deploy changes. We’ll finish with a practical example of a week of team contributions becoming one dev release, followed by the steps needed to reach production."
+    },
+    {
+      "id": "platform-roadmap",
+      "layout": "comparison",
+      "eyebrow": "02 / DELIVERY STATUS",
+      "title": "Proven in the POC.\nNext steps underway.",
+      "description": "Demonstrated in the POC today. Platform migration and E2E automation in progress.",
+      "notes": "Let’s establish the current position first. On GitHub Actions, the proof of concept covers five capabilities: Document, Lint, Build, Sync and Debug. Document produces diagrams and references that help us understand the journeys and configuration. That gives us the foundation for managing journeys as code. Two pieces of work are in progress: moving to Bitbucket with Ship CI/CD, and automatically running end-to-end tests after a successful tenant sync. So, when I show Playwright later, that is the verification stage we’re completing. The immediate focus is making this process work consistently for sandbox and dev, before connecting the remaining environments.",
+      "items": [
+        {
+          "value": "POC",
+          "label": "Demonstrated on GitHub Actions",
+          "detail": "Document · Lint · Build · Sync · Debug"
+        },
+        {
+          "value": "In progress",
+          "label": "Bitbucket + Ship CI/CD",
+          "detail": "E2E test execution after successful sync."
+        }
+      ]
+    },
+    {
+      "id": "infrastructure-repository",
+      "layout": "diagram",
+      "eyebrow": "03 / THE REPOSITORY",
+      "title": "transmit-infrastructure",
+      "description": "Journeys, modules and configuration in one versioned workflow.",
+      "notes": "The repository at the center of this process is transmit-infrastructure. It brings our journeys, TypeScript modules and Transmit configuration into a shared, versioned workflow. From there, we can produce diagrams and references, run automated checks and synchronize connected tenants. It also gives us a history of changes and a way to compare sandbox with dev before a release. That shared context is useful for both engineers and AI: we can look at what changed, understand the intended behavior and investigate a problem against the same version of the configuration.",
+      "mermaid": "flowchart LR\n  J[\"Journeys\"] --> R[\"transmit-infrastructure<br/>Versioned changes + shared context\"]\n  T[\"TypeScript modules\"] --> R\n  C[\"Transmit configuration\"] --> R\n  R --> D[\"Document<br/>Diagrams + references\"]\n  R --> V[\"Validate<br/>Lint + build + dry run\"]\n  R --> S[\"Deploy<br/>Sync connected tenants\"]"
+    },
+    {
+      "id": "branch-tenant-mapping",
+      "layout": "diagram",
+      "eyebrow": "04 / BRANCH → TENANT",
+      "title": "Each branch maps\nto a Transmit tenant.",
+      "description": "Connected: sandbox and dev. Planned after Bitbucket + Ship CI/CD: test and production.",
+      "notes": "Each environment branch maps to a Transmit tenant. The sandbox branch is connected to our Develop sandbox tenant, and the dev branch is connected to First Horizon Dev. Those are the two deployment connections we have today. The test and production branches have their intended tenants, but those connections are still planned, which is why they appear as dashed lines. Once the Bitbucket and Ship CI/CD work is complete, we need to connect those remaining environments. This makes the destination of each deployment explicit: the branch determines the tenant.",
+      "mermaid": "flowchart LR\n  S[\"sandbox branch\"] -->|Connected| ST[\"Develop - sandbox tenant\"]\n  D[\"dev branch\"] -->|Connected| DT[\"First Horizon Dev\"]\n  T[\"test branch\"] -.->|Not connected| TT[\"First Horizon Test\"]\n  P[\"production branch\"] -.->|Not connected| PT[\"First Horizon Production\"]\n  classDef planned fill:#f5f7fa,stroke:#718096,color:#334155,stroke-dasharray:5 4;\n  class T,TT,P,PT planned;"
+    },
+    {
+      "id": "shared-history",
+      "layout": "comparison",
+      "eyebrow": "05 / DEVELOPMENT WORKFLOW",
+      "title": "Two ways to develop.\nOne sandbox history.",
+      "description": "Every change has a sandbox commit and check status. Environment E2E verification is in progress.",
+      "notes": "There are two ways for a developer to contribute. They can open a pull request against sandbox, or they can edit a journey directly in the sandbox portal. A code change enters sandbox through the PR workflow. A portal change is automatically captured as a sandbox commit. Portal-generated commits are excluded from the import trigger. In both cases, we get a shared history and a status for the checks associated with that change. That commit status tells us about code validation. The separate check of behavior in the deployed environment will come from the Playwright automation we’re currently adding.",
+      "items": [
+        {
+          "value": "Developer",
+          "label": "Open PR → sandbox",
+          "detail": "Validate and merge code changes into the sandbox branch."
+        },
+        {
+          "value": "Portal",
+          "label": "Edit a sandbox journey",
+          "detail": "Automatically capture portal changes as sandbox commits."
+        }
+      ]
+    },
+    {
+      "id": "core-capabilities",
+      "layout": "comparison",
+      "eyebrow": "06 / CORE CAPABILITIES",
+      "title": "Four core capabilities.",
+      "description": "Develop and validate changes. Deploy to sandbox and dev. Verification is in progress.",
+      "notes": "We can group the process into four capabilities. Develop is how we create and maintain journeys, using code, the portal and AI assistance. Validate is how we check those changes through linting, builds, unit tests and Transmit’s dry run. Deploy is how we import the configuration into the connected tenant; today that means sandbox and dev. Verify is how we check the behavior of the environment after synchronization, using Playwright. That final capability is in progress. I’ll now walk through these in the order an engineer encounters them.",
+      "items": [
+        {
+          "value": "Develop",
+          "label": "Code + portal",
+          "detail": "Create and maintain journeys and configuration."
+        },
+        {
+          "value": "Validate",
+          "label": "Automated PR checks",
+          "detail": "Lint, build, unit test and dry import."
+        },
+        {
+          "value": "Deploy",
+          "label": "Sandbox / dev only",
+          "detail": "Synchronize the target tenant."
+        },
+        {
+          "value": "Verify",
+          "label": "In progress",
+          "detail": "Playwright E2E after successful sync."
+        }
+      ]
+    },
+    {
+      "id": "portal-and-ai",
+      "layout": "comparison",
+      "eyebrow": "07 / DEVELOP / PORTAL + AI",
+      "title": "Start in the portal.\nContinue with AI.",
+      "description": "Example: update a journey in the portal, then use AI to explain and refine the change.",
+      "notes": "Imagine we need to adjust a step in an existing journey. We can start in the Transmit portal, where the journey is easy to inspect and edit. That change is then captured in the sandbox branch. With the configuration available as code, we can ask AI to explain the change, compare it with the requirements or help refine the behavior. The useful connection here is between the visual editing experience and the versioned code. Any further code changes follow the same pull request and validation process as other development work.",
+      "items": [
+        {
+          "value": "Portal",
+          "label": "Develop the journey",
+          "detail": "Edit → automatic sandbox commit → visible change history."
+        },
+        {
+          "value": "AI",
+          "label": "Refine the journey",
+          "detail": "Read requirements + journey → propose an update → PR checks."
+        }
+      ]
+    },
+    {
+      "id": "agent-development",
+      "layout": "flowchart",
+      "eyebrow": "08 / DEVELOP / AGENTS",
+      "title": "Build journeys\nwith agents.",
+      "description": "Example: requirements → agent-proposed journey → sandbox PR → automated checks.",
+      "notes": "We can also start with a requirement and use an agent to build or update a journey. For example, we could describe a new journey branch and provide the existing configuration as context. The agent can propose the changes, which we can inspect in a sandbox pull request. The same checks then apply: linting, building where needed and validating the journey. The value is that the agent has both the intended behavior and the configuration it needs to work with. We still have a visible change set that can be reviewed before it enters the shared branch.",
+      "steps": [
+        {
+          "label": "Requirements Journey + configuration context"
+        },
+        {
+          "label": "Agent Build or update journey"
+        },
+        {
+          "label": "Sandbox PR Review proposed changes"
+        },
+        {
+          "label": "Quality checks Validate before merge"
+        }
+      ],
+      "flow": {
+        "nodes": [
+          {
+            "id": "n0",
+            "label": "Requirements\nJourney + configuration context",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "step": 0
+          },
+          {
+            "id": "n1",
+            "label": "Agent\nBuild or update journey",
+            "position": {
+              "x": 290,
+              "y": 0
+            },
+            "step": 1
+          },
+          {
+            "id": "n2",
+            "label": "Sandbox PR\nReview proposed changes",
+            "position": {
+              "x": 580,
+              "y": 0
+            },
+            "step": 2
+          },
+          {
+            "id": "n3",
+            "label": "Quality checks\nValidate before merge",
+            "position": {
+              "x": 870,
+              "y": 0
+            },
+            "step": 3
+          }
+        ],
+        "edges": [
+          {
+            "id": "e0",
+            "source": "n0",
+            "target": "n1"
+          },
+          {
+            "id": "e1",
+            "source": "n1",
+            "target": "n2"
+          },
+          {
+            "id": "e2",
+            "source": "n2",
+            "target": "n3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "typescript-artifacts",
+      "layout": "flowchart",
+      "eyebrow": "09 / DEVELOP / TYPESCRIPT",
+      "title": "TypeScript modules.\nAutomatically included.",
+      "description": "Build → test the actual bundle → include it in journeys → generate metadata.",
+      "notes": "For TypeScript modules, the pipeline handles the path from source code to journey configuration. First, we bundle the modules. Then we run automated unit tests against the built artifact—the version we will actually include. Once those tests pass, the build is included in the journeys and metadata is generated. This gives us a repeatable way to package the code and check it before import. Lint and build apply to sandbox, dev and production branches, while the tenant deployment connections currently remain limited to sandbox and dev.",
+      "steps": [
+        {
+          "label": "Bundle TypeScript modules"
+        },
+        {
+          "label": "Unit tests Against built artifact"
+        },
+        {
+          "label": "Include automatically Journey configuration"
+        },
+        {
+          "label": "Generate Metadata"
+        }
+      ],
+      "flow": {
+        "nodes": [
+          {
+            "id": "n0",
+            "label": "Bundle\nTypeScript modules",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "step": 0
+          },
+          {
+            "id": "n1",
+            "label": "Unit tests\nAgainst built artifact",
+            "position": {
+              "x": 290,
+              "y": 0
+            },
+            "step": 1
+          },
+          {
+            "id": "n2",
+            "label": "Include automatically\nJourney configuration",
+            "position": {
+              "x": 580,
+              "y": 0
+            },
+            "step": 2
+          },
+          {
+            "id": "n3",
+            "label": "Generate\nMetadata",
+            "position": {
+              "x": 870,
+              "y": 0
+            },
+            "step": 3
+          }
+        ],
+        "edges": [
+          {
+            "id": "e0",
+            "source": "n0",
+            "target": "n1"
+          },
+          {
+            "id": "e1",
+            "source": "n1",
+            "target": "n2"
+          },
+          {
+            "id": "e2",
+            "source": "n2",
+            "target": "n3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dynatrace-debugging",
+      "layout": "comparison",
+      "eyebrow": "10 / DEVELOP / DEBUG",
+      "title": "Investigate issues\nwith Dynatrace logs.",
+      "description": "Example: journey failure → Dynatrace evidence → AI-assisted diagnosis → proposed fix.",
+      "notes": "When a journey fails, the configuration tells us what was intended, and the logs help us understand what happened. With access to Dynatrace logs, we can investigate the failure and compare that evidence with the journey and its requirements. AI can help us work through that context and suggest a likely cause or a change to investigate. For example, we can examine why a journey took an unexpected path and use the logs to guide the analysis. A proposed fix then returns through the same development and validation process.",
+      "items": [
+        {
+          "value": "Investigate",
+          "label": "Read Dynatrace logs",
+          "detail": "Identify failures and follow the journey’s observed behavior."
+        },
+        {
+          "value": "Resolve",
+          "label": "Use AI with context",
+          "detail": "Combine logs, code and requirements to diagnose and propose a fix."
+        }
+      ]
+    },
+    {
+      "id": "journey-linter",
+      "layout": "metrics",
+      "eyebrow": "11 / VALIDATE / JOURNEY MAN LINTER",
+      "title": "34 rules.\nA shared quality standard.",
+      "description": "Journey Man Linter checks naming conventions, coding standards and journey integrity.",
+      "notes": "Journey Man Linter is our tool for applying a consistent quality standard across journeys. It currently has 34 rules covering the conventions and standards we want to maintain. After the build has been included and metadata generated, we also check journey integrity: references, missing fields and missing branches. This helps us catch problems before a configuration is imported into a tenant. If a required check fails, the release needs to be corrected before moving forward. These checks give every contribution the same baseline, whether it came from a developer, the portal or an agent.",
+      "items": [
+        {
+          "value": "34",
+          "label": "Lint rules",
+          "detail": "Consistent quality and naming conventions."
+        },
+        {
+          "value": "Integrity",
+          "label": "Journey structure",
+          "detail": "Check references, missing fields and branches."
+        }
+      ]
+    },
+    {
+      "id": "transmit-dry-run",
+      "layout": "comparison",
+      "eyebrow": "12 / VALIDATE / DRY RUN",
+      "title": "One more check\nbefore import.",
+      "description": "Transmit’s native journey validation endpoint checks the prepared configuration.",
+      "notes": "After our own checks, we ask Transmit to validate the prepared configuration through its native journey validation endpoint. This is the dry run stage. It gives us another check before we perform the actual import. The release path is straightforward: the required pipeline checks must pass, then we review the complete set of changes before merging. If validation fails, we correct the change and run the checks again. That separates preparation of the configuration from the later step that updates the tenant.",
+      "items": [
+        {
+          "value": "Pass",
+          "label": "Continue to review",
+          "detail": "Required PR checks pass before merge and import."
+        },
+        {
+          "value": "Fail",
+          "label": "Correct the change",
+          "detail": "Resolve validation errors before promotion."
+        }
+      ]
+    },
+    {
+      "id": "configuration-import",
+      "layout": "flowchart",
+      "eyebrow": "13 / DEPLOYMENT / AUTOMATIC IMPORT",
+      "title": "New commit.\nFull configuration import.",
+      "description": "Target-branch code commits trigger full import. Portal-generated commits are excluded.",
+      "notes": "Deployment follows the branch-to-tenant mapping. When a code commit lands on a connected target branch, the automation imports the full configuration into that tenant. For our weekly release, that means merging the sandbox-to-dev PR and updating First Horizon Dev. There is one important distinction: automatic commits generated from portal edits are excluded from the import trigger. Those changes already came from the tenant, so we capture them in version control without importing the same change back. Today, the connected deployment scope covers sandbox and dev.",
+      "steps": [
+        {
+          "label": "Code commit on target branch · portal commits excluded"
+        },
+        {
+          "label": "Branch mapping Select connected tenant"
+        },
+        {
+          "label": "Import Full configuration"
+        },
+        {
+          "label": "Updated tenant Sandbox or dev"
+        }
+      ],
+      "flow": {
+        "nodes": [
+          {
+            "id": "n0",
+            "label": "Code commit\nTarget branch",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "step": 0
+          },
+          {
+            "id": "n1",
+            "label": "Branch mapping\nSelect connected tenant",
+            "position": {
+              "x": 290,
+              "y": 0
+            },
+            "step": 1
+          },
+          {
+            "id": "n2",
+            "label": "Import\nFull configuration",
+            "position": {
+              "x": 580,
+              "y": 0
+            },
+            "step": 2
+          },
+          {
+            "id": "n3",
+            "label": "Updated tenant\nSandbox or dev",
+            "position": {
+              "x": 870,
+              "y": 0
+            },
+            "step": 3
+          }
+        ],
+        "edges": [
+          {
+            "id": "e0",
+            "source": "n0",
+            "target": "n1"
+          },
+          {
+            "id": "e1",
+            "source": "n1",
+            "target": "n2"
+          },
+          {
+            "id": "e2",
+            "source": "n2",
+            "target": "n3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "playwright-verification",
+      "layout": "flowchart",
+      "eyebrow": "14 / VERIFICATION / IN PROGRESS",
+      "title": "Run the full\nPlaywright suite.",
+      "description": "In progress: successful sync → full Playwright suite → environment verification results.",
+      "notes": "A successful import tells us the configuration was synchronized. The next question is whether the journeys behave as expected in that environment. That is the role of the full Playwright test suite. The automation we’re adding will run after a successful sync, against the target environment and using the target branch. In the weekly release example, it will verify dev immediately after the import. This is still in progress. Once connected, it will give us a clear environment verification result alongside the checks we already run on the code.",
+      "steps": [
+        {
+          "label": "Successful sync Target tenant updated"
+        },
+        {
+          "label": "Playwright Execute full E2E suite"
+        },
+        {
+          "label": "Target environment Verify journey behavior"
+        },
+        {
+          "label": "Test results Record pass or failure"
+        }
+      ],
+      "flow": {
+        "nodes": [
+          {
+            "id": "n0",
+            "label": "Successful sync\nTarget tenant updated",
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "step": 0
+          },
+          {
+            "id": "n1",
+            "label": "Playwright\nExecute full E2E suite",
+            "position": {
+              "x": 290,
+              "y": 0
+            },
+            "step": 1
+          },
+          {
+            "id": "n2",
+            "label": "Target environment\nVerify journey behavior",
+            "position": {
+              "x": 580,
+              "y": 0
+            },
+            "step": 2
+          },
+          {
+            "id": "n3",
+            "label": "Test results\nRecord pass or failure",
+            "position": {
+              "x": 870,
+              "y": 0
+            },
+            "step": 3
+          }
+        ],
+        "edges": [
+          {
+            "id": "e0",
+            "source": "n0",
+            "target": "n1"
+          },
+          {
+            "id": "e1",
+            "source": "n1",
+            "target": "n2"
+          },
+          {
+            "id": "e2",
+            "source": "n2",
+            "target": "n3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "weekly-promotion",
+      "layout": "diagram",
+      "eyebrow": "15 / EXAMPLE DEVELOPMENT WEEK / FULL WORKFLOW",
+      "title": "One week. One PR. Into dev.",
+      "description": "Collect changes during the week. Validate, review and import one PR to dev.",
+      "notes": "Let’s bring the process together with a week of development. Sree merges one PR into sandbox. Ram updates a journey in the portal, which produces an automatic commit. Rush merges two PRs, and Andrius merges one. All of those changes collect in sandbox with their check status.\n\nAt the end of the week, we open one PR from sandbox into dev. It shows the combined changes between the environments. The pipeline runs lint, build and validation, and AI helps review the change set. Once the checks and review are complete, we merge and import into dev. The final step shown here is the full Playwright suite after a successful sync—the verification automation that is currently in progress.",
+      "mermaid": "flowchart TB\n  subgraph WEEK[\"DURING THE WEEK\"]\n    direction LR\n    A[\"Sree: merges 1 PR<br/>Ram: updates portal<br/>Rush: merges 2 PRs<br/>Andrius: merges 1 PR\"] --> B[\"Sandbox<br/>Commits + check status\"] --> C[\"End of week<br/>One PR: sandbox → dev\"]\n  end\n  subgraph RELEASE[\"RELEASE TO DEV\"]\n    direction LR\n    D[\"Lint + build<br/>+ validate\"] -->|Pass| E[\"Review changes<br/>AI review\"] --> F[\"Merge + import<br/>Full dev configuration\"] -.->|Sync succeeds| G[\"Playwright suite<br/>IN PROGRESS\"]\n  end\n  WEEK --> RELEASE\n  classDef pending fill:#f5f7fa,stroke:#718096,color:#334155,stroke-dasharray:5 4;\n  class G pending;\n  style WEEK fill:#ffffff,stroke:#b8d4f5\n  style RELEASE fill:#ffffff,stroke:#b8d4f5"
+    },
+    {
+      "id": "production-target",
+      "layout": "comparison",
+      "eyebrow": "16 / TARGET",
+      "title": "From sandbox to a\nverified production release.",
+      "description": "A working POC today. A clear path through dev to production.",
+      "notes": "Our starting point is the GitHub Actions proof of concept, with sandbox and dev connected and the core Document, Lint, Build, Sync and Debug capabilities demonstrated. The next milestone is to complete the Bitbucket and Ship CI/CD work and add automatic Playwright verification after synchronization. That gives us the full path from sandbox changes to a verified dev release. From there, we need to connect test and production and extend the same process. The target is a release we can trace from its source changes, through validation and review, to verified behavior in production.",
+      "items": [
+        {
+          "value": "Now",
+          "label": "Demonstrated in POC",
+          "detail": "GitHub Actions · sandbox and dev connected."
+        },
+        {
+          "value": "Next",
+          "label": "In progress",
+          "detail": "Bitbucket + Ship CI/CD · Playwright after sync."
+        },
+        {
+          "value": "Target",
+          "label": "Planned",
+          "detail": "Connect test and production · verify each release."
+        }
+      ]
+    }
+  ]
+}
