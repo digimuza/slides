@@ -234,6 +234,8 @@ export default function Studio() {
   const [toast, setToast] = useState("");
   const [ready, setReady] = useState(false);
   const [saved, setSaved] = useState(true);
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const [printing, setPrinting] = useState(false);
   const [overview, setOverview] = useState(false);
   const [direction, setDirection] = useState(1);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -251,6 +253,21 @@ export default function Studio() {
   useEffect(() => {
     setReveal({ id: "", step: 0 });
   }, [active]);
+  useEffect(() => {
+    if (!printing) return;
+    let cancelled = false;
+    void (async () => {
+      await document.fonts.ready;
+      await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      if (!cancelled) window.print();
+    })();
+    const afterPrint = () => setPrinting(false);
+    window.addEventListener("afterprint", afterPrint);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("afterprint", afterPrint);
+    };
+  }, [printing]);
   useEffect(() => {
     try {
       const stored = localStorage.getItem("folio-deck");
@@ -705,10 +722,17 @@ export default function Studio() {
             <Code2 size={16} />
             <span>Edit JSON</span>
           </button>
-          <button className="button export-button" onClick={download}>
-            <ArrowDownToLine size={15} />
-            <span>Export</span>
-          </button>
+          <div className="export-menu-wrap">
+            <button className="button export-button" aria-expanded={exportMenuOpen} onClick={() => setExportMenuOpen(!exportMenuOpen)}>
+              <ArrowDownToLine size={15} />
+              <span>Export</span>
+              <ChevronDown size={13} />
+            </button>
+            {exportMenuOpen && <div className="export-menu" role="menu">
+              <button role="menuitem" onClick={() => { setExportMenuOpen(false); setPrinting(true); }}>Export as PDF</button>
+              <button role="menuitem" onClick={() => { setExportMenuOpen(false); download(); }}>Export as JSON</button>
+            </div>}
+          </div>
           <button className="button primary" onClick={present}>
             <Play size={15} fill="currentColor" />
             Present
@@ -1518,6 +1542,13 @@ export default function Studio() {
           </div>
         </div>
       )}
+      <div className="print-deck" aria-hidden="true">
+        {deck.slides.map((printSlide, i) => (
+          <div className="print-slide" key={printSlide.id}>
+            <SlideCanvas slide={printSlide} theme={deck.theme} index={i} total={deck.slides.length} />
+          </div>
+        ))}
+      </div>
       <LibraryPreview />
       <AnimatePresence>
         {toast && (

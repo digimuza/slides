@@ -379,6 +379,32 @@ button:hover:not(:disabled) {
   gap: 9px;
   align-items: center;
 }
+.export-menu-wrap {
+  position: relative;
+}
+.export-menu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 7px);
+  right: 0;
+  min-width: 150px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: white;
+  box-shadow: 0 8px 24px #29271418;
+}
+.export-menu button {
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  text-align: left;
+  font-size: 11px;
+}
+.export-menu button:hover { background: #f4f4f0; }
+.print-deck { display: none; }
 .aspect-badge {
   font-size: 9px;
   color: #898b80;
@@ -2776,6 +2802,33 @@ kbd {
 .layout-chart .slide-copy { width: 100%; flex: none; }
 .layout-chart .slide-copy h1 { font-size: 2.9cqw; margin: 0 0 0.4cqw; letter-spacing: -0.09cqw; }
 .layout-chart .slide-copy p { font-size: 1cqw; }
+
+@page {
+  size: landscape;
+  margin: 0;
+}
+@media print {
+  html, body { width: 100%; height: 100%; margin: 0 !important; background: white !important; }
+  body * { visibility: hidden !important; }
+  .print-deck, .print-deck * { visibility: visible !important; }
+  .print-deck {
+    display: block !important;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+  }
+  .print-slide {
+    width: 100vw;
+    height: 100vh;
+    break-after: page;
+    page-break-after: always;
+    overflow: hidden;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .print-slide:last-child { break-after: auto; page-break-after: auto; }
+  .print-slide > .slide-canvas { width: 100%; height: 100%; aspect-ratio: auto; }
+}
 .native-chart { flex: 1; min-height: 0; min-width: 0; width: 100%; }
 .gantt-chart { overflow: auto; }
 .gantt-chart svg { display: block; width: 100%; height: 100%; }
