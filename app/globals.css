@@ -2127,7 +2127,7 @@ kbd {
   font-family: var(--font);
 }
 .flow-node-card.current {
-  border: 2px solid var(--accent);
+  border-color: var(--accent);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent);
 }
 .flow-node-card.decision {
@@ -2188,6 +2188,24 @@ kbd {
 }
 .flow-panel .react-flow__edge-path {
   stroke: var(--flow-edge);
+}
+.flow-reveal-edge {
+  animation: flow-edge-in 250ms ease-out;
+  transition: opacity 250ms ease-out;
+}
+@keyframes flow-edge-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flow-reveal-edge {
+    animation: none;
+    transition: none;
+  }
 }
 @media (max-width: 600px) {
   .flow-expand {
