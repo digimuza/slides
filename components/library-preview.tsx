@@ -151,7 +151,7 @@ export default function LibraryPreview({ full = false }: { full?: boolean }) {
           Slide layout
           <select value={layout} onChange={(event) => setLayout(event.target.value)}>
             <option value="">All layouts</option>
-            {["cover", "statement", "metrics", "comparison", "quote", "closing", "diagram", "code", "flowchart"].map((value) =>
+            {["cover", "statement", "metrics", "comparison", "quote", "closing", "diagram", "code", "flowchart", "chart"].map((value) =>
               <option key={value} value={value}>{value}</option>,
             )}
           </select>

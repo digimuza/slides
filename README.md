@@ -45,7 +45,7 @@ A reference deck is in `public/sample-deck.json`. The TypeScript schema, validat
 ```
 
 - Themes: `editorial`, `midnight`, `botanical`, `first-horizon`.
-- Layouts: `cover`, `statement`, `metrics`, `comparison`, `quote`, `closing`, `diagram`, `code`, `flowchart`.
+- Layouts: `cover`, `statement`, `metrics`, `comparison`, `quote`, `closing`, `diagram`, `code`, `flowchart`, `chart`.
 - Metrics and comparison slides require 1–4 `items`, each with `value`, `label`, and optional `detail` strings.
 - Slide IDs must be unique; decks support 1–100 slides.
 - Text uses `\n` for intentional line breaks. Keep copy brief for a balanced slide layout.
@@ -182,3 +182,48 @@ Use **Move slide earlier / later** in the canvas toolbar to reorder the selected
 The library supports case-insensitive search by slide title, project name, or source ID. Combine search with **Slide layout**, see the matching slide count, and use **Clear filters** to return to all projects. Filters remain applied during live library refreshes.
 
 Use **Export all speaker notes** below the notes editor to download a UTF-8 text rehearsal sheet. It includes the deck name, numbered slide titles in the current order, and notes for every slide; slides without notes are marked explicitly.
+
+## Native charts
+
+Use **Add slide → Charts** to add a **Gantt, pie, donut, bar, line, or area chart**.
+Open **Content → Chart data** to edit labels and numeric values, add or remove points,
+or switch between the five numeric chart types. Gantt charts have task names, inclusive
+start/end dates, and completion percentages. Invalid edits display an error and keep the
+last valid chart in the preview; correct them before leaving the slide to retain the edit.
+
+Charts use Recharts for numeric data and a dedicated SVG Gantt renderer. They adapt to
+all four themes and appear in thumbnails, presentation mode, and saved slide previews.
+Their structured data is included in JSON exports, local storage, and library saves.
+No Mermaid source is needed. Gantt charts show dates and progress; dependency links and
+dragging tasks to reschedule are not currently supported.
+
+```json
+{
+  "id": "revenue",
+  "layout": "chart",
+  "eyebrow": "QUARTERLY RESULTS",
+  "title": "Revenue is growing",
+  "description": "Revenue in thousands",
+  "notes": "Illustrative figures",
+  "chart": {
+    "type": "bar",
+    "valueLabel": "Revenue",
+    "data": [{ "label": "Q1", "value": 32 }, { "label": "Q2", "value": 48 }]
+  }
+}
+```
+
+For Gantt slides, replace `chart` with:
+
+```json
+{
+  "type": "gantt",
+  "tasks": [
+    { "label": "Design", "start": "2026-10-01", "end": "2026-10-08", "progress": 60 }
+  ]
+}
+```
+
+Numeric charts accept up to 50 points; Gantt charts accept up to 30 tasks. Pie and donut
+values must be non-negative with at least one positive value. End dates cannot precede
+start dates, and progress must be between 0 and 100.

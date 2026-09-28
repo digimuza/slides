@@ -1,3 +1,4 @@
+import { chartSchema } from "./chart-schema";
 import { z } from "zod";
 
 const text = z.string().max(50_000);
@@ -56,6 +57,7 @@ export const slideSchema = z
       "diagram",
       "code",
       "flowchart",
+      "chart",
     ]),
     eyebrow: z.string().max(300),
     title: z.string().min(1).max(2_000),
@@ -67,6 +69,7 @@ export const slideSchema = z
     steps: z.array(step).min(1).max(50).optional(),
     items: z.array(item).max(4).optional(),
     flow: flow.optional(),
+    chart: chartSchema.optional(),
   })
   .strict()
   .superRefine((slide, ctx) => {
@@ -102,6 +105,10 @@ export const slideSchema = z
       issue(["steps"], "This layout does not support reveal steps.");
     if (slide.flow && slide.layout !== "flowchart")
       issue(["flow"], "Only flowcharts support flow data.");
+    if (slide.layout === "chart" && !slide.chart)
+      issue(["chart"], "Chart slides need chart data.");
+    if (slide.chart && slide.layout !== "chart")
+      issue(["chart"], "Only chart slides support chart data.");
     if (!slide.flow) return;
     const ids = new Set<string>();
     for (const [i, node] of slide.flow.nodes.entries()) {
@@ -164,6 +171,7 @@ export const slidePatchSchema = z
         "diagram",
         "code",
         "flowchart",
+        "chart",
       ])
       .optional(),
     eyebrow: z.string().max(300).optional(),
@@ -176,6 +184,7 @@ export const slidePatchSchema = z
     steps: z.array(step).min(1).max(50).optional(),
     items: z.array(item).max(4).optional(),
     flow: flow.optional(),
+    chart: chartSchema.optional(),
   })
   .strict()
   .refine((v) => Object.keys(v).length > 0, "Provide a field to update.");
