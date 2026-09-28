@@ -11,6 +11,7 @@ import {
   MarkerType,
   useReactFlow,
   useNodesInitialized,
+  getViewportForBounds,
   type Node,
   type NodeProps,
 } from "@xyflow/react";
@@ -28,7 +29,13 @@ import type { FlowData, Theme } from "@/lib/deck";
 import RevealControls, { type RevealProps } from "./reveal-controls";
 
 type StoryNode = Node<
-  { label: string; current: boolean; decision: boolean; step: number },
+  {
+    label: string;
+    current: boolean;
+    decision: boolean;
+    step: number;
+    visible: boolean;
+  },
   "story"
 >;
 function StoryCard({ data }: NodeProps<StoryNode>) {
@@ -36,9 +43,10 @@ function StoryCard({ data }: NodeProps<StoryNode>) {
   return (
     <motion.div
       className={`flow-node-card ${data.current ? "current" : ""} ${data.decision ? "decision" : ""}`}
-      initial={reduce ? false : { opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
+      initial={reduce ? false : { opacity: 0 }}
+      animate={{ opacity: data.visible ? 1 : 0 }}
+      transition={{ duration: reduce ? 0 : 0.25 }}
+      aria-hidden={!data.visible}
     >
       <Handle type="target" position={Position.Left} />
       <div className="flow-node-kicker">
@@ -66,9 +74,21 @@ function FlowCanvas({
   const initialized = useNodesInitialized();
   const viewport = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
+  const [retainedStep, setRetainedStep] = useState(reveal.step);
+  // Retain outgoing nodes and their connectors until their fade has finished.
+  useEffect(() => {
+    if (reduce) {
+      setRetainedStep(reveal.step);
+      return;
+    }
+    setRetainedStep((previous) => Math.max(previous, reveal.step));
+    const timeout = setTimeout(() => setRetainedStep(reveal.step), 250);
+    return () => clearTimeout(timeout);
+  }, [reveal.step, reduce]);
+  const renderedStep = reduce ? reveal.step : Math.max(reveal.step, retainedStep);
   const visible = useMemo(
-    () => flow.nodes.filter((n) => n.step <= reveal.step),
-    [flow.nodes, reveal.step],
+    () => flow.nodes.filter((n) => n.step <= renderedStep),
+    [flow.nodes, renderedStep],
   );
   const nodes: StoryNode[] = useMemo(
     () =>
@@ -76,56 +96,102 @@ function FlowCanvas({
         id: n.id,
         type: "story",
         position: n.position,
+        // Preserve measured sizes and handle bounds when changing reveal data.
+        measured: api.getInternalNode(n.id)?.measured,
+        style: { pointerEvents: n.step <= reveal.step ? "auto" : "none" },
         data: {
           label: n.label,
           current: n.step === reveal.step,
           decision: n.kind === "decision",
           step: n.step,
+          visible: n.step <= reveal.step,
         },
       })),
-    [visible, reveal.step],
+    [api, visible, reveal.step],
   );
   const edges = useMemo(() => {
     const ids = new Set(visible.map((n) => n.id));
+    const activeIds = new Set(
+      visible.filter((n) => n.step <= reveal.step).map((n) => n.id),
+    );
     return flow.edges
       .filter((e) => ids.has(e.source) && ids.has(e.target))
       .map((e) => ({
         ...e,
         type: "smoothstep",
+        pathOptions: { borderRadius: 16 },
+        className: "flow-reveal-edge",
         animated:
           !reduce &&
           visible.some((n) => n.id === e.target && n.step === reveal.step),
         markerEnd: { type: MarkerType.ArrowClosed },
-        style: { stroke: "var(--flow-edge)", strokeWidth: 1.7 },
+        style: {
+          stroke: "var(--flow-edge)",
+          strokeWidth: 1.7,
+          strokeLinecap: "round" as const,
+          strokeLinejoin: "round" as const,
+          opacity: activeIds.has(e.source) && activeIds.has(e.target) ? 1 : 0,
+          pointerEvents: "none" as const,
+        },
         labelStyle: { fill: "var(--text)", fontSize: 12 },
         labelBgStyle: { fill: "var(--paper)" },
       }));
   }, [flow.edges, visible, reduce, reveal.step]);
   const fit = useCallback(
-    (all = false, animate = true) => {
-      // Keep the newest handoffs legible instead of shrinking a growing chart.
+    (all = true, animate = true) => {
       const focus = all
         ? visible
         : visible.filter((n) => n.step >= Math.max(0, reveal.step - 2));
-      void api.fitView({
-        nodes: focus.length ? focus : visible,
-        padding: 0.22,
-        minZoom: 0.05,
-        maxZoom: 1.1,
+      const element = viewport.current;
+      if (!element || !visible.length) return;
+      const bounds = api.getNodesBounds(
+        (focus.length ? focus : visible).map((node) => node.id),
+      );
+      const nextViewport = getViewportForBounds(
+        bounds,
+        element.clientWidth,
+        element.clientHeight,
+        0.05,
+        1.1,
+        0.22,
+      );
+      void api.setViewport(nextViewport, {
         duration: reduce || !animate ? 0 : 320,
       });
     },
     [api, visible, reveal.step, reduce],
   );
   useEffect(() => {
-    if (!initialized) return;
-    const frame = requestAnimationFrame(() => fit(false));
+    let frame: number;
+    const fitWhenMeasured = () => {
+      // Rapid reveals can reach this effect before React Flow has measured
+      // every new node. Fitting that partial set leaves later nodes clipped.
+      const measured = visible.every((node) => {
+        const current = api.getInternalNode(node.id);
+        return current?.measured?.width && current.measured.height;
+      });
+      if (!api.viewportInitialized || !measured) {
+        frame = requestAnimationFrame(fitWhenMeasured);
+        return;
+      }
+      fit();
+    };
+    frame = requestAnimationFrame(fitWhenMeasured);
     return () => cancelAnimationFrame(frame);
-  }, [initialized, fit, expanded]);
+  }, [api, visible, initialized, fit, expanded]);
   useEffect(() => {
     if (!viewport.current || !initialized) return;
-    const observer = new ResizeObserver(() => fit(false, false));
-    observer.observe(viewport.current);
+    const element = viewport.current;
+    let width = element.clientWidth;
+    let height = element.clientHeight;
+    const observer = new ResizeObserver(() => {
+      // The initial observer notification must not interrupt an animated fit.
+      if (width === element.clientWidth && height === element.clientHeight) return;
+      width = element.clientWidth;
+      height = element.clientHeight;
+      fit(true, false);
+    });
+    observer.observe(element);
     return () => observer.disconnect();
   }, [fit, initialized]);
   const advance = () =>
@@ -177,8 +243,6 @@ function FlowCanvas({
           onPaneClick={advance}
           onNodeClick={advance}
           onMove={(_, v) => setZoom(v.zoom)}
-          fitView
-          fitViewOptions={{ maxZoom: 1.1, padding: 0.2 }}
         >
           <Background color="var(--flow-grid)" gap={22} size={1} />
         </ReactFlow>

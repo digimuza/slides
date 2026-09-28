@@ -1,5 +1,22 @@
 import { readFileSync } from "node:fs";
-import { test, expect } from "@playwright/test";
+import { test, expect, type Locator } from "@playwright/test";
+
+async function expectFlowFitted(container: Locator) {
+  await expect.poll(() => container.locator(".flow-viewport").evaluate((viewport) => {
+    const bounds = viewport.getBoundingClientRect();
+    const nodes = Array.from(viewport.querySelectorAll(".react-flow__node"))
+      .map((node) => node.getBoundingClientRect());
+    if (!nodes.length) return false;
+    const left = Math.min(...nodes.map((node) => node.left));
+    const right = Math.max(...nodes.map((node) => node.right));
+    const top = Math.min(...nodes.map((node) => node.top));
+    const bottom = Math.max(...nodes.map((node) => node.bottom));
+    return left >= bounds.left && right <= bounds.right &&
+      top >= bounds.top && bottom <= bounds.bottom &&
+      Math.abs((left + right - bounds.left - bounds.right) / 2) < 3 &&
+      Math.abs((top + bottom - bounds.top - bounds.bottom) / 2) < 3;
+  })).toBe(true);
+}
 
 test("themes, slide creation, content, JSON validation, persistence and presentation", async ({
   page,
@@ -309,6 +326,7 @@ test("React Flow reveals forward and backward, pans, zooms and supports fullscre
   const fullscreen = page.getByRole("dialog", { name: "Fullscreen flowchart" });
   await page.keyboard.press("ArrowRight");
   await expect(fullscreen.locator(".react-flow__node")).toHaveCount(3);
+  await expectFlowFitted(fullscreen);
   await page.keyboard.press("ArrowLeft");
   await expect(fullscreen.locator(".react-flow__node")).toHaveCount(2);
   await fullscreen.getByRole("button", { name: "Reveal next step" }).click();
@@ -320,6 +338,7 @@ test("React Flow reveals forward and backward, pans, zooms and supports fullscre
   for (let i = 0; i < 6; i++) await page.keyboard.press("ArrowRight");
   await expect(nodes).toHaveCount(9);
   await expect(canvas.locator(".react-flow__edge")).toHaveCount(8);
+  await expectFlowFitted(canvas);
   await canvas.getByRole("button", { name: "Fit flowchart" }).click();
   await page.screenshot({ path: "/tmp/folio-react-flow.png", fullPage: true });
   await page.getByRole("button", { name: "Present", exact: true }).click();
@@ -334,6 +353,7 @@ test("React Flow reveals forward and backward, pans, zooms and supports fullscre
   await page.keyboard.press("Escape");
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(canvas.locator(".flow-viewport")).toBeVisible();
+  await expectFlowFitted(canvas);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
