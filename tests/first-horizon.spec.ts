@@ -33,8 +33,26 @@ test("First Horizon applies without replacing content and survives import, expor
   await page.getByRole("button", { name: "Present", exact: true }).click();
   await expect(page.locator(".presentation-mode").getByRole("img", { name: "First Horizon" })).toBeVisible();
   await page.keyboard.press("Escape");
-  await page.setViewportSize({ width: 390, height: 844 });
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+  await expect(page.locator(".presentation-mode")).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => document.fullscreenElement === null)).toBe(true);
+});
+
+test("First Horizon fits a mobile viewport", async ({ browser }) => {
+  // Use a fresh window: native fullscreen restoration can outlast the DOM
+  // fullscreenchange event, making an immediate window resize fail in Chromium.
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  try {
+    const page = await context.newPage();
+    await page.goto(test.info().project.use.baseURL!);
+    await page.getByRole("button", { name: "Edit JSON", exact: true }).click();
+    await page.locator('input[type="file"]').setInputFiles("public/first-horizon-deck.json");
+    await expect(page.getByRole("textbox", { name: "Deck JSON" })).toContainText("first-horizon");
+    await page.getByRole("button", { name: "Apply changes" }).click();
+    await expect(page.locator(".canvas-frame .slide-canvas")).toHaveClass(/theme-first-horizon/);
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  } finally {
+    await context.close();
+  }
 });
 
 test("First Horizon deck persists through project APIs and renders in the slide library", async ({ request, page }) => {
