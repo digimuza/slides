@@ -1,3 +1,4 @@
+import { chartSchema, type ChartData } from "./chart-schema";
 import {
   codeRevealSlide,
   flowRevealSlide,
@@ -14,7 +15,8 @@ export type Layout =
   | "closing"
   | "diagram"
   | "code"
-  | "flowchart";
+  | "flowchart"
+  | "chart";
 export type Theme = "editorial" | "midnight" | "botanical" | "first-horizon";
 export type FlowData = {
   nodes: {
@@ -35,6 +37,7 @@ export type Slide = {
   notes: string;
   mermaid?: string;
   flow?: FlowData;
+  chart?: ChartData;
   fileName?: string;
   language?: string;
   steps?: { label: string; code?: string; mermaid?: string }[];
@@ -168,6 +171,7 @@ export function parseDeck(input: string): Deck {
         "diagram",
         "code",
         "flowchart",
+        "chart",
       ].includes(s.layout) ||
       ["id", "eyebrow", "title", "description", "notes"].some(
         (k) => typeof s[k] !== "string",
@@ -178,6 +182,12 @@ export function parseDeck(input: string): Deck {
         `Slide ${i + 1}: use a unique id, valid layout, and text fields (eyebrow, title, description, notes).`,
       );
     ids.add(s.id);
+    if (s.layout === "chart") {
+      const result = chartSchema.safeParse(s.chart);
+      if (!result.success) throw new Error(`Slide ${i + 1}: ${result.error.issues.map((issue) => issue.message).join(" ")}`);
+    } else if (s.chart !== undefined) {
+      throw new Error(`Slide ${i + 1}: only chart slides support chart data.`);
+    }
     if (s.advanceKey !== undefined && !["left", "right"].includes(s.advanceKey))
       throw new Error(`Slide ${i + 1}: advanceKey must be left or right.`);
     if (

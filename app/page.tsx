@@ -38,6 +38,9 @@ import FlowChart from "@/components/flow-chart";
 import CodeReveal from "@/components/code-reveal";
 import { flowRevealSlide } from "@/lib/reveal-samples";
 import MermaidDiagram from "@/components/mermaid-diagram";
+import NativeChart from "@/components/native-chart";
+import ChartEditor from "@/components/chart-editor";
+import { chartTemplates } from "@/lib/chart-templates";
 
 const themeNames = {
   editorial: "Editorial",
@@ -130,6 +133,7 @@ export function SlideCanvas({
             </span>
           )}
         </div>
+        {slide.layout === "chart" && slide.chart && <NativeChart chart={slide.chart} theme={theme} mini={mini} />}
         {slide.layout === "diagram" && (
           <MermaidDiagram
             source={slide.steps?.[step]?.mermaid || slide.mermaid || ""}
@@ -597,8 +601,8 @@ export default function Studio() {
       /* Presentation mode also works without browser fullscreen. */
     }
   }
-  function addSlide(layout: Layout) {
-    const source = sampleDeck.slides.find((s) => s.layout === layout)!;
+  function addSlide(layout: Layout, template?: Slide) {
+    const source = template || sampleDeck.slides.find((s) => s.layout === layout)!;
     const newSlide = { ...structuredClone(source), id: crypto.randomUUID() };
     setDeck((d) => ({
       ...d,
@@ -1065,6 +1069,7 @@ export default function Studio() {
                   onChange={(e) => updateSlide({ description: e.target.value })}
                 />
               </label>
+              {slide.layout === "chart" && slide.chart && <ChartEditor key={slide.id} chart={slide.chart} onChange={(chart) => updateSlide({ chart })} />}
               {slide.layout === "diagram" && !slide.steps && (
                 <label>
                   Mermaid source
@@ -1308,7 +1313,7 @@ export default function Studio() {
                     </p>
                   )}
                   <div className="modal-footer">
-                    <span>9 layouts · 4 themes · Endless possibilities</span>
+                    <span>10 layouts · 4 themes · Endless possibilities</span>
                     <button
                       className="button primary"
                       onClick={() => {
@@ -1394,6 +1399,16 @@ export default function Studio() {
               ) : modal === "add" ? (
                 <>
                   <p>Pick a starting point. Your content makes it yours.</p>
+                  <h3>Charts</h3>
+                  <div className="chart-options">
+                    {chartTemplates.map(({ name, slide: template }) => (
+                      <button key={name} onClick={() => addSlide("chart", template)}>
+                        <strong>{name}<Plus size={14} /></strong>
+                        <span>{template.description}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <h3>Slide layouts</h3>
                   <button
                     className="button primary"
                     onClick={() => {
