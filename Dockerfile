@@ -2,6 +2,9 @@ FROM node:24-bookworm-slim
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
 ENV NODE_ENV=production \
     HOSTNAME=0.0.0.0 \
     PORT=3000
