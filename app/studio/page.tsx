@@ -21,6 +21,7 @@ import {
   Keyboard,
   Layers,
   LayoutTemplate,
+  Link2,
   Play,
   Plus,
   RotateCcw,
@@ -504,6 +505,23 @@ export default function Studio() {
       setError(err instanceof Error ? err.message : "Could not load projects.");
     }
   }
+  async function shareProject() {
+    if (!linkedProject) return;
+    if (baselineRef.current !== JSON.stringify(deck)) {
+      setToast("Save your changes before sharing the latest deck");
+      return;
+    }
+    try {
+      const response = await fetch(`/api/projects/${linkedProject}/share`, { method: "POST" });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error?.message || "Could not create share link.");
+      const url = `${window.location.origin}${payload.data.path}`;
+      await navigator.clipboard.writeText(url);
+      setToast("View-only link copied");
+    } catch (err) {
+      setToast(err instanceof Error ? err.message : "Could not copy share link");
+    }
+  }
   async function saveProject() {
     setError("");
     const deckToSave = { ...deck, name: projectName.trim() };
@@ -715,6 +733,7 @@ export default function Studio() {
           <span className="deck-tag">Sample deck</span>
         </div>
         <div className="document-actions">
+          {linkedProject && <button className="button quiet" onClick={() => void shareProject()}><Link2 size={15} /><span>Copy view link</span></button>}
           <button
             className="button save-db-button"
             onClick={() => void openSave()}

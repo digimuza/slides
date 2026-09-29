@@ -42,6 +42,8 @@ export async function ready(): Promise<Pool> {
         );
         CREATE INDEX IF NOT EXISTS slides_project_position_idx ON slides(project_id, position, created_at);
         ALTER TABLE projects ADD COLUMN IF NOT EXISTS revision BIGINT NOT NULL DEFAULT 0;
+        ALTER TABLE projects ADD COLUMN IF NOT EXISTS share_slug VARCHAR(80);
+        CREATE UNIQUE INDEX IF NOT EXISTS projects_share_slug_idx ON projects(share_slug);
         ALTER TABLE slides ADD COLUMN IF NOT EXISTS revision BIGINT NOT NULL DEFAULT 0;
         CREATE OR REPLACE FUNCTION folio_touch_project() RETURNS trigger AS $$
         BEGIN

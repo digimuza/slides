@@ -2898,6 +2898,14 @@ kbd {
 .project-header-actions, .detail-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 9px; }
 .project-header-actions a, .detail-actions a { display: inline-flex; align-items: center; gap: 5px; padding: 9px 11px; border: 1px solid #e1e5de; border-radius: 8px; background: #fff; color: #49604c; font-size: 11px; font-weight: 700; white-space: nowrap; }
 .project-header-actions a:hover, .detail-actions a:hover { background: #eef3eb; }
+.shared-viewer { min-height: 100dvh; display: flex; flex-direction: column; background: #171b17; color: #fff; }
+.shared-viewer-header { display: flex; justify-content: space-between; gap: 20px; padding: 14px 22px; font: 600 12px Manrope, sans-serif; }
+.shared-viewer-header span:last-child { color: #c5d3c5; font-weight: 400; }
+.shared-viewer-stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 8px 18px; }
+.shared-viewer-canvas { width: min(100%, calc((100dvh - 112px) * 16 / 9)); aspect-ratio: 16 / 9; box-shadow: 0 12px 35px #0005; }
+.shared-viewer-controls { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 10px 16px 15px; font: 600 12px Manrope, sans-serif; }
+.shared-viewer-controls button { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border: 1px solid #ffffff55; border-radius: 6px; background: #ffffff13; color: #fff; cursor: pointer; }
+.shared-viewer-controls button:disabled { opacity: .35; cursor: default; }
 @media (max-width: 1050px) { .create-template-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .create-template-preview strong { font-size: 24px; } }
 @media (max-width: 700px) {
   .create-topbar { height: 65px; padding: 0 20px; }

@@ -151,6 +151,7 @@ All API responses use `{ "data": ... }` on success or `{ "error": { "code", "mes
 | --- | --- | --- |
 | GET, POST | `/api/projects` | List or create projects |
 | GET | `/api/projects/{projectId}/export` | Download the project's complete deck as JSON |
+| POST | `/api/projects/{projectId}/share` | Create or return its stable, unique viewer slug |
 | GET, PATCH, DELETE | `/api/projects/{projectId}` | Read, rename, or delete a project |
 | GET, PUT | `/api/projects/{projectId}/deck` | Read or atomically save a deck |
 | GET, POST | `/api/projects/{projectId}/slides` | List or create individual slides |
@@ -161,6 +162,8 @@ All API responses use `{ "data": ... }` on success or `{ "error": { "code", "mes
 | GET, PUT, PATCH, DELETE | `/api/slides/{slideId}` | Manage one slide by its direct ID |
 
 `POST /api/projects` accepts `{ "name": "My project", "theme": "editorial" }`. `POST /api/projects/{projectId}/slides` and `PUT /api/slides/{slideId}` accept a raw slide object matching the deck schema, including `id`, `layout`, `title`, `eyebrow`, `description`, and `notes`. `PATCH /api/slides/{slideId}` accepts changed slide fields, merges them with the saved object, and validates the complete result. `PUT /api/projects/{projectId}/deck` accepts the complete deck JSON. Saved slides also have links at `/library/projects/{projectId}/slides/{slideId}`.
+
+Use **Copy view link** in a saved project's studio, or `POST /api/projects/{projectId}/share`, to get a stable URL such as `/s/coolify-a1b2c3`. The viewer presents the current saved deck with navigation and no editing controls or speaker notes. Its slug remains the same when the deck changes. This is a read-only interface, not access control: the studio and write APIs remain public until authentication and project ownership are added.
 
 Every saved deck belongs to a project. To create and update one through MCP, connect to `https://slides.digimuza.ai/api/mcp`, then call `create_project`, `create_slide`, `get_slide`, and `update_slide` with the exact `etag` returned by `get_slide`. The open studio at `/studio?project={projectId}` refreshes saved changes automatically. The `slideId` used in API URLs and MCP calls is the database UUID returned by `create_slide` or `list_slides`; it differs from the slide JSON's `id` field.
 
