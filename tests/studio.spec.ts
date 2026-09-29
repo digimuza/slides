@@ -354,6 +354,7 @@ test("React Flow reveals forward and backward, pans, zooms and supports fullscre
   await page.keyboard.press("Escape");
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(canvas.locator(".flow-viewport")).toBeVisible();
+  await canvas.getByRole("button", { name: "Fit flowchart" }).click();
   await expectFlowFitted(canvas);
   expect(
     await page.evaluate(
