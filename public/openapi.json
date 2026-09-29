@@ -1,0 +1,172 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Folio Slides API",
+    "version": "1.0.0",
+    "description": "Create projects and slides, get stable slide permalinks, and update slide content. Slide IDs in API paths are database UUIDs. `content.id` is a separate source ID that is stable within its project. Updates return an ETag; send it as `If-Match` to prevent overwriting a newer revision."
+  },
+  "servers": [{ "url": "/", "description": "Current Folio instance" }],
+  "tags": [
+    { "name": "Projects" },
+    { "name": "Slides" },
+    { "name": "Decks" }
+  ],
+  "paths": {
+    "/api/projects": {
+      "get": {
+        "tags": ["Projects"],
+        "summary": "List saved projects",
+        "responses": { "200": { "description": "Projects", "content": { "application/json": { "schema": { "type": "object", "required": ["data"], "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/ProjectSummary" } } } } } } } }
+      },
+      "post": {
+        "tags": ["Projects"],
+        "summary": "Create a project",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectInput" } } } },
+        "responses": { "201": { "$ref": "#/components/responses/ProjectResponse" }, "422": { "$ref": "#/components/responses/ValidationError" } }
+      }
+    },
+    "/api/projects/{projectId}": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }],
+      "get": {
+        "tags": ["Projects"], "summary": "Get a project",
+        "responses": { "200": { "description": "Project details", "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "$ref": "#/components/schemas/ProjectSummary" } } } } } }, "404": { "$ref": "#/components/responses/NotFound" } }
+      },
+      "patch": {
+        "tags": ["Projects"], "summary": "Update project details",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectPatch" } } } },
+        "responses": { "200": { "$ref": "#/components/responses/ProjectResponse" }, "404": { "$ref": "#/components/responses/NotFound" }, "422": { "$ref": "#/components/responses/ValidationError" } }
+      },
+      "delete": { "tags": ["Projects"], "summary": "Delete project and its slides", "responses": { "204": { "description": "Deleted" }, "404": { "$ref": "#/components/responses/NotFound" } } }
+    },
+    "/api/projects/{projectId}/share": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }],
+      "post": {
+        "tags": ["Projects"], "summary": "Create or retrieve a read-only project share link",
+        "responses": {
+          "200": { "description": "Share path", "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "type": "object", "properties": { "slug": { "type": "string" }, "path": { "type": "string", "example": "/s/project-name-a1b2c3" } } } } } } } },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "503": { "description": "Could not allocate a unique share slug" }
+        }
+      }
+    },
+    "/api/projects/{projectId}/export": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }],
+      "get": {
+        "tags": ["Decks"], "summary": "Download project deck JSON",
+        "responses": { "200": { "description": "Deck JSON file", "headers": { "Content-Disposition": { "schema": { "type": "string" } } }, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Deck" } } } }, "404": { "$ref": "#/components/responses/NotFound" } }
+      }
+    },
+    "/api/projects/{projectId}/slides": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }],
+      "get": {
+        "tags": ["Slides"], "summary": "List slides in presentation order",
+        "description": "Each returned `id` is the stable database UUID used in slide API calls and permalink URLs. `sourceId` corresponds to the slide content's `id`.",
+        "responses": { "200": { "description": "Slides", "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/SavedSlide" } } } } } } }, "404": { "$ref": "#/components/responses/NotFound" } }
+      },
+      "post": {
+        "tags": ["Slides"], "summary": "Create a slide",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SlideContent" } } } },
+        "responses": { "201": { "$ref": "#/components/responses/SlideResponse" }, "404": { "$ref": "#/components/responses/NotFound" }, "422": { "$ref": "#/components/responses/ValidationError" } }
+      }
+    },
+    "/api/projects/{projectId}/slides/{slideId}": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/SlideId" }],
+      "get": { "tags": ["Slides"], "summary": "Get a slide scoped to its project", "responses": { "200": { "$ref": "#/components/responses/SlideResponse" }, "404": { "$ref": "#/components/responses/NotFound" } } },
+      "put": { "tags": ["Slides"], "summary": "Replace slide content scoped to its project", "parameters": [{ "$ref": "#/components/parameters/IfMatch" }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SlideContent" } } } }, "responses": { "200": { "$ref": "#/components/responses/SlideResponse" }, "409": { "$ref": "#/components/responses/Conflict" }, "404": { "$ref": "#/components/responses/NotFound" }, "422": { "$ref": "#/components/responses/ValidationError" } } },
+      "patch": { "tags": ["Slides"], "summary": "Update selected fields on a project slide", "parameters": [{ "$ref": "#/components/parameters/IfMatch" }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SlidePatch" } } } }, "responses": { "200": { "$ref": "#/components/responses/SlideResponse" }, "409": { "$ref": "#/components/responses/Conflict" }, "404": { "$ref": "#/components/responses/NotFound" }, "422": { "$ref": "#/components/responses/ValidationError" } } },
+      "delete": { "tags": ["Slides"], "summary": "Delete a slide scoped to its project", "responses": { "204": { "description": "Deleted" }, "404": { "$ref": "#/components/responses/NotFound" } } }
+    },
+    "/api/projects/{projectId}/slides/{slideId}/export": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/SlideId" }],
+      "get": { "tags": ["Slides"], "summary": "Download slide content as JSON", "responses": { "200": { "description": "Slide content JSON file", "headers": { "Content-Disposition": { "schema": { "type": "string" } } }, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SlideContent" } } } }, "404": { "$ref": "#/components/responses/NotFound" } } }
+    },
+    "/api/projects/{projectId}/slides/{slideId}/screenshot": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }, { "$ref": "#/components/parameters/SlideId" }],
+      "get": { "tags": ["Slides"], "summary": "Capture a slide screenshot", "responses": { "200": { "description": "PNG screenshot", "content": { "image/png": { "schema": { "type": "string", "format": "binary" } } } }, "404": { "$ref": "#/components/responses/NotFound" }, "429": { "description": "Screenshot capacity is currently full" }, "500": { "description": "Screenshot capture failed" } } }
+    },
+    "/api/projects/{projectId}/deck": {
+      "parameters": [{ "$ref": "#/components/parameters/ProjectId" }],
+      "get": {
+        "tags": ["Decks"], "summary": "Get a project deck",
+        "description": "Returns an ETag. Use it as `If-Match` when saving to prevent stale writes. Supports `If-None-Match` and returns 304 when unchanged.",
+        "parameters": [{ "$ref": "#/components/parameters/IfNoneMatch" }],
+        "responses": { "200": { "description": "Deck and revision tag", "headers": { "ETag": { "$ref": "#/components/headers/ETag" } }, "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "$ref": "#/components/schemas/Deck" } } } } } }, "304": { "description": "Deck unchanged", "headers": { "ETag": { "$ref": "#/components/headers/ETag" } } }, "404": { "$ref": "#/components/responses/NotFound" } }
+      },
+      "put": {
+        "tags": ["Decks"], "summary": "Save or update a complete deck",
+        "description": "Matching slide source IDs preserve their database UUIDs and permalinks. Slides omitted from the input are retained.",
+        "parameters": [{ "$ref": "#/components/parameters/IfMatch" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Deck" } } } },
+        "responses": { "200": { "description": "Saved", "headers": { "ETag": { "$ref": "#/components/headers/ETag" } }, "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "type": "object", "properties": { "projectId": { "type": "string", "format": "uuid" }, "savedSlides": { "type": "integer" } } } } } } } }, "409": { "$ref": "#/components/responses/Conflict" }, "404": { "$ref": "#/components/responses/NotFound" }, "422": { "$ref": "#/components/responses/ValidationError" } }
+      }
+    },
+    "/api/slides": {
+      "get": {
+        "tags": ["Slides"], "summary": "List saved slides",
+        "parameters": [{ "name": "projectId", "in": "query", "schema": { "type": "string", "format": "uuid" }, "description": "Optionally filter by project." }],
+        "responses": { "200": { "description": "Saved slides", "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "type": "array", "items": { "$ref": "#/components/schemas/SlideSummary" } } } } } } } }
+      }
+    },
+    "/api/slides/{slideId}": {
+      "parameters": [{ "$ref": "#/components/parameters/SlideId" }],
+      "get": {
+        "tags": ["Slides"], "summary": "Get a slide by stable ID",
+        "description": "The `id` in the response is also used in the public permalink `/library/projects/{projectId}/slides/{slideId}`. Supports `If-None-Match` and returns 304 when unchanged.",
+        "parameters": [{ "$ref": "#/components/parameters/IfNoneMatch" }],
+        "responses": { "200": { "$ref": "#/components/responses/SlideResponse" }, "304": { "description": "Slide unchanged", "headers": { "ETag": { "$ref": "#/components/headers/ETag" } } }, "404": { "$ref": "#/components/responses/NotFound" } }
+      },
+      "put": {
+        "tags": ["Slides"], "summary": "Replace slide content",
+        "description": "Preserves the database slide ID and permalink. Send the current ETag in `If-Match` to guard against stale writes.",
+        "parameters": [{ "$ref": "#/components/parameters/IfMatch" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SlideContent" } } } },
+        "responses": { "200": { "$ref": "#/components/responses/SlideResponse" }, "409": { "$ref": "#/components/responses/Conflict" }, "404": { "$ref": "#/components/responses/NotFound" }, "422": { "$ref": "#/components/responses/ValidationError" } }
+      },
+      "patch": {
+        "tags": ["Slides"], "summary": "Update selected slide fields",
+        "description": "Merges fields into current content; arrays are replaced as a whole. Send the current ETag in `If-Match` to guard against stale writes.",
+        "parameters": [{ "$ref": "#/components/parameters/IfMatch" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SlidePatch" } } } },
+        "responses": { "200": { "$ref": "#/components/responses/SlideResponse" }, "409": { "$ref": "#/components/responses/Conflict" }, "404": { "$ref": "#/components/responses/NotFound" }, "422": { "$ref": "#/components/responses/ValidationError" } }
+      },
+      "delete": { "tags": ["Slides"], "summary": "Delete a slide", "responses": { "204": { "description": "Deleted" }, "404": { "$ref": "#/components/responses/NotFound" } } }
+    }
+  },
+  "components": {
+    "parameters": {
+      "ProjectId": { "name": "projectId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+      "SlideId": { "name": "slideId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+      "IfMatch": { "name": "If-Match", "in": "header", "required": false, "description": "ETag from the most recent GET. A mismatch returns 409.", "schema": { "type": "string" } },
+      "IfNoneMatch": { "name": "If-None-Match", "in": "header", "required": false, "schema": { "type": "string" } }
+    },
+    "headers": { "ETag": { "description": "Revision token; pass back in If-Match for updates.", "schema": { "type": "string" } } },
+    "responses": {
+      "ProjectResponse": { "description": "Project", "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "$ref": "#/components/schemas/Project" } } } } } },
+      "SlideResponse": { "description": "Slide with stable database ID", "headers": { "ETag": { "$ref": "#/components/headers/ETag" } }, "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "$ref": "#/components/schemas/SavedSlide" } } } } } },
+      "NotFound": { "description": "Project or slide not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiErrorEnvelope" } } } },
+      "Conflict": { "description": "The resource changed since it was read; fetch the latest version and retry.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiErrorEnvelope" } } } },
+      "ValidationError": { "description": "Request body failed validation", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiErrorEnvelope" } } } }
+    },
+    "schemas": {
+      "Theme": { "type": "string", "enum": ["editorial", "midnight", "botanical", "first-horizon"] },
+      "Layout": { "type": "string", "enum": ["cover", "statement", "metrics", "comparison", "quote", "closing", "diagram", "code", "flowchart", "chart"] },
+      "ProjectInput": { "type": "object", "required": ["name"], "additionalProperties": false, "properties": { "name": { "type": "string", "minLength": 1, "maxLength": 160 }, "theme": { "$ref": "#/components/schemas/Theme", "default": "editorial" } } },
+      "ProjectPatch": { "type": "object", "minProperties": 1, "additionalProperties": false, "properties": { "name": { "type": "string", "minLength": 1, "maxLength": 160 }, "theme": { "$ref": "#/components/schemas/Theme" } } },
+      "Project": { "allOf": [{ "$ref": "#/components/schemas/ProjectInput" }, { "type": "object", "required": ["id", "createdAt", "updatedAt"], "properties": { "id": { "type": "string", "format": "uuid" }, "createdAt": { "type": "string", "format": "date-time" }, "updatedAt": { "type": "string", "format": "date-time" } } }] },
+      "ProjectSummary": { "allOf": [{ "$ref": "#/components/schemas/Project" }, { "type": "object", "properties": { "slideCount": { "type": "integer" } } }] },
+      "Item": { "type": "object", "required": ["value", "label"], "additionalProperties": false, "properties": { "value": { "type": "string", "maxLength": 200 }, "label": { "type": "string", "maxLength": 2000 }, "detail": { "type": "string", "maxLength": 2000 } } },
+      "Step": { "type": "object", "required": ["label"], "additionalProperties": false, "properties": { "label": { "type": "string", "minLength": 1, "maxLength": 200 }, "code": { "type": "string", "maxLength": 50000 }, "mermaid": { "type": "string", "minLength": 1, "maxLength": 50000 } } },
+      "ChartPoint": { "type": "object", "required": ["label", "value"], "additionalProperties": false, "properties": { "label": { "type": "string", "minLength": 1, "maxLength": 200 }, "value": { "type": "number", "minimum": -1000000000000, "maximum": 1000000000000 } } },
+      "Chart": { "oneOf": [{ "type": "object", "required": ["type", "data"], "additionalProperties": false, "properties": { "type": { "type": "string", "enum": ["pie", "donut", "bar", "line", "area"] }, "data": { "type": "array", "minItems": 1, "maxItems": 50, "items": { "$ref": "#/components/schemas/ChartPoint" } }, "valueLabel": { "type": "string", "maxLength": 100 } } }, { "type": "object", "required": ["type", "tasks"], "additionalProperties": false, "properties": { "type": { "const": "gantt" }, "tasks": { "type": "array", "minItems": 1, "maxItems": 30, "items": { "type": "object", "required": ["label", "start", "end"], "additionalProperties": false, "properties": { "label": { "type": "string", "minLength": 1, "maxLength": 200 }, "start": { "type": "string", "format": "date" }, "end": { "type": "string", "format": "date" }, "progress": { "type": "number", "minimum": 0, "maximum": 100 } } } } } }] },
+      "FlowNode": { "type": "object", "required": ["id", "label", "position", "step"], "additionalProperties": false, "properties": { "id": { "type": "string", "minLength": 1, "maxLength": 120 }, "label": { "type": "string", "minLength": 1, "maxLength": 300 }, "position": { "type": "object", "required": ["x", "y"], "additionalProperties": false, "properties": { "x": { "type": "number", "minimum": -1000000, "maximum": 1000000 }, "y": { "type": "number", "minimum": -1000000, "maximum": 1000000 } } }, "step": { "type": "integer", "minimum": 0 }, "kind": { "type": "string", "enum": ["process", "decision"] } } },
+      "FlowEdge": { "type": "object", "required": ["id", "source", "target"], "additionalProperties": false, "properties": { "id": { "type": "string", "minLength": 1, "maxLength": 120 }, "source": { "type": "string", "minLength": 1 }, "target": { "type": "string", "minLength": 1 }, "label": { "type": "string", "maxLength": 300 } } },
+      "Flow": { "type": "object", "required": ["nodes", "edges"], "additionalProperties": false, "properties": { "nodes": { "type": "array", "minItems": 1, "maxItems": 100, "items": { "$ref": "#/components/schemas/FlowNode" } }, "edges": { "type": "array", "maxItems": 300, "items": { "$ref": "#/components/schemas/FlowEdge" } } } },
+      "SlideContent": { "type": "object", "required": ["id", "layout", "eyebrow", "title", "description", "notes"], "additionalProperties": false, "properties": { "id": { "type": "string", "minLength": 1, "maxLength": 120, "description": "Source ID within project; matching this ID preserves the database slide UUID/permalink." }, "layout": { "$ref": "#/components/schemas/Layout" }, "eyebrow": { "type": "string", "maxLength": 300 }, "title": { "type": "string", "minLength": 1, "maxLength": 2000 }, "description": { "type": "string", "maxLength": 50000 }, "notes": { "type": "string", "maxLength": 50000 }, "mermaid": { "type": "string", "maxLength": 50000 }, "fileName": { "type": "string", "maxLength": 300 }, "language": { "type": "string", "maxLength": 80 }, "steps": { "type": "array", "minItems": 1, "maxItems": 50, "items": { "$ref": "#/components/schemas/Step" } }, "items": { "type": "array", "maxItems": 4, "items": { "$ref": "#/components/schemas/Item" } }, "flow": { "$ref": "#/components/schemas/Flow" }, "chart": { "$ref": "#/components/schemas/Chart" } }, "allOf": [{ "if": { "properties": { "layout": { "const": "chart" } }, "required": ["layout"] }, "then": { "required": ["chart"] } }, { "if": { "properties": { "layout": { "const": "flowchart" } }, "required": ["layout"] }, "then": { "required": ["flow", "steps"] } }] },
+      "SlidePatch": { "type": "object", "minProperties": 1, "additionalProperties": false, "properties": { "id": { "type": "string", "minLength": 1, "maxLength": 120 }, "layout": { "$ref": "#/components/schemas/Layout" }, "eyebrow": { "type": "string", "maxLength": 300 }, "title": { "type": "string", "minLength": 1, "maxLength": 2000 }, "description": { "type": "string", "maxLength": 50000 }, "notes": { "type": "string", "maxLength": 50000 }, "mermaid": { "type": "string", "maxLength": 50000 }, "fileName": { "type": "string", "maxLength": 300 }, "language": { "type": "string", "maxLength": 80 }, "steps": { "type": "array", "minItems": 1, "maxItems": 50, "items": { "$ref": "#/components/schemas/Step" } }, "items": { "type": "array", "maxItems": 4, "items": { "$ref": "#/components/schemas/Item" } }, "flow": { "$ref": "#/components/schemas/Flow" }, "chart": { "$ref": "#/components/schemas/Chart" } } },
+      "Deck": { "type": "object", "required": ["name", "theme", "slides"], "additionalProperties": false, "properties": { "name": { "type": "string", "minLength": 1, "maxLength": 160 }, "theme": { "$ref": "#/components/schemas/Theme" }, "slides": { "type": "array", "minItems": 1, "maxItems": 100, "items": { "$ref": "#/components/schemas/SlideContent" } } } },
+      "SavedSlide": { "type": "object", "required": ["id", "projectId", "sourceId", "title", "layout", "position", "content", "revision", "createdAt", "updatedAt"], "properties": { "id": { "type": "string", "format": "uuid", "description": "Stable slide UUID used by /api/slides/{slideId}." }, "projectId": { "type": "string", "format": "uuid" }, "sourceId": { "type": "string" }, "title": { "type": "string" }, "layout": { "$ref": "#/components/schemas/Layout" }, "position": { "type": "integer" }, "content": { "$ref": "#/components/schemas/SlideContent" }, "revision": { "type": "integer", "format": "int64" }, "createdAt": { "type": "string", "format": "date-time" }, "updatedAt": { "type": "string", "format": "date-time" } } },
+      "SlideSummary": { "type": "object", "properties": { "id": { "type": "string", "format": "uuid" }, "projectId": { "type": "string", "format": "uuid" }, "projectName": { "type": "string" }, "sourceId": { "type": "string" }, "title": { "type": "string" }, "layout": { "$ref": "#/components/schemas/Layout" }, "position": { "type": "integer" }, "createdAt": { "type": "string", "format": "date-time" }, "updatedAt": { "type": "string", "format": "date-time" } } },
+      "ApiErrorEnvelope": { "type": "object", "properties": { "error": { "type": "object", "properties": { "code": { "type": "string" }, "message": { "type": "string" }, "issues": { "type": "array", "items": { "type": "object", "properties": { "path": { "type": "string" }, "message": { "type": "string" } } } } } } } }
+    }
+  }
+}

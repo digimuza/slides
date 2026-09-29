@@ -229,6 +229,7 @@ export default function Studio() {
   const [projectTarget, setProjectTarget] = useState("new");
   const [projectName, setProjectName] = useState("");
   const [savingProject, setSavingProject] = useState(false);
+  const [cloudSaving, setCloudSaving] = useState(false);
   const [presenting, setPresenting] = useState(false);
   const [transition, setTransition] = useState("slide");
   const [notesOpen, setNotesOpen] = useState(true);
@@ -242,6 +243,7 @@ export default function Studio() {
   const fileRef = useRef<HTMLInputElement>(null);
   const reduce = useReducedMotion();
   const slide = deck.slides[Math.min(active, deck.slides.length - 1)];
+  const cloudDirty = !!linkedProject && JSON.stringify(deck) !== baselineRef.current;
   const revealStep =
     reveal.id === slide.id
       ? Math.min(reveal.step, (slide.steps?.length || 1) - 1)
@@ -383,6 +385,41 @@ export default function Studio() {
     }
   }, [deck, ready]);
   useEffect(() => {
+    if (!linkedProject || !baselineRef.current) return;
+    const source = JSON.stringify(deck);
+    if (source === baselineRef.current) return;
+    const timer = window.setTimeout(async () => {
+      setCloudSaving(true);
+      try {
+        const response = await fetch(`/api/projects/${linkedProject}/deck`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            ...(etagRef.current ? { "If-Match": etagRef.current } : {}),
+          },
+          body: source,
+        });
+        const payload = await response.json();
+        if (!response.ok) {
+          if (response.status === 409) {
+            setToast("This project changed elsewhere. Load the latest version before saving.");
+            return;
+          }
+          throw new Error(payload.error?.message || "Could not save changes.");
+        }
+        baselineRef.current = source;
+        etagRef.current = response.headers.get("etag");
+        setRemoteDeck(null);
+        window.dispatchEvent(new Event("folio-library-change"));
+      } catch (err) {
+        setToast(err instanceof Error ? err.message : "Could not save changes.");
+      } finally {
+        setCloudSaving(false);
+      }
+    }, 650);
+    return () => window.clearTimeout(timer);
+  }, [deck, linkedProject]);
+  useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(""), 3000);
     return () => clearTimeout(t);
@@ -520,6 +557,20 @@ export default function Studio() {
       setToast("View-only link copied");
     } catch (err) {
       setToast(err instanceof Error ? err.message : "Could not copy share link");
+    }
+  }
+  async function copySlideLink() {
+    if (!linkedProject || !slide) return;
+    try {
+      const response = await fetch(`/api/projects/${linkedProject}/slides`, { cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error?.message || "Could not get slide link.");
+      const item = payload.data.find((entry: { sourceId: string }) => entry.sourceId === slide.id);
+      if (!item) throw new Error("Save this slide before copying its link.");
+      await navigator.clipboard.writeText(`${window.location.origin}/library/projects/${linkedProject}/slides/${item.id}`);
+      setToast("Slide link copied");
+    } catch (err) {
+      setToast(err instanceof Error ? err.message : "Could not copy slide link.");
     }
   }
   async function saveProject() {
@@ -730,9 +781,10 @@ export default function Studio() {
                 : "Storage full · export to save"}
             </span>
           </div>
-          <span className="deck-tag">Sample deck</span>
+          <span className="deck-tag">{linkedProject ? (cloudSaving || cloudDirty ? "Saving to project…" : "Project synced") : "Sample deck"}</span>
         </div>
         <div className="document-actions">
+          {linkedProject && <button className="button quiet" onClick={() => void copySlideLink()} title="Copy active slide permalink"><Copy size={15} /><span>Copy slide link</span></button>}
           {linkedProject && <button className="button quiet" onClick={() => void shareProject()}><Link2 size={15} /><span>Copy view link</span></button>}
           <button
             className="button save-db-button"
