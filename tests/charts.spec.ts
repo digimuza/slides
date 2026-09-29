@@ -6,7 +6,7 @@ import { parseDeck } from "../lib/deck";
 
 for (const template of chartTemplates) {
   test(`${template.name} renders, edits and round trips`, async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/studio?demo=1");
     await page.getByRole("button", { name: "Add slide", exact: true }).click();
     await page.getByRole("button", { name: template.name }).click();
     const chart = page.locator(".canvas-frame .native-chart");
@@ -96,7 +96,7 @@ test("chart validation rejects invalid values, dates, and missing data", () => {
 test("invalid edits show an error and recover without losing the preview", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/studio?demo=1");
   await page.getByRole("button", { name: "Add slide", exact: true }).click();
   await page.getByRole("button", { name: "Pie chart" }).click();
   await page.getByRole("button", { name: "Content", exact: true }).click();
@@ -154,7 +154,7 @@ test("chart decks persist through the API and render in presentation and library
     expect(saved.ok()).toBe(true);
     const loaded = await request.get(`/api/projects/${project.id}/deck`);
     expect((await loaded.json()).data).toEqual(deck);
-    await page.goto(`/?project=${project.id}`);
+    await page.goto(`/studio?project=${project.id}`);
     await expect(page.locator(".canvas-frame .gantt-chart svg")).toBeVisible();
     await page.getByRole("button", { name: "Present", exact: true }).click();
     await expect(

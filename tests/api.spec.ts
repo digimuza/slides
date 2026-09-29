@@ -203,17 +203,18 @@ test("editor saves a project and library links update one slide", async ({
   page,
   request,
 }) => {
-  await page.goto("/");
+  const projectName = `Library UI test ${crypto.randomUUID()}`;
+  await page.goto("/studio?demo=1");
   await page.getByRole("button", { name: "Save to project" }).click();
   await page
     .getByRole("textbox", { name: "Project name" })
-    .fill("Library UI test");
+    .fill(projectName);
   await page.getByRole("button", { name: "Save slides" }).click();
   await expect(page.getByRole("status")).toContainText(
     "slides saved to PostgreSQL",
   );
   const project = (await (await request.get("/api/projects")).json()).data.find(
-    (p: { name: string }) => p.name === "Library UI test",
+    (p: { name: string }) => p.name === projectName,
   );
   expect(project.slideCount).toBe(sampleDeck.slides.length);
   try {
@@ -243,10 +244,8 @@ test("editor saves a project and library links update one slide", async ({
       (await (await request.get(`/api/slides/${target.id}`)).json()).data.title,
     ).toBe(content.title);
     await page.getByRole("link", { name: "All slides" }).click();
-    await expect(
-      page.getByRole("link", { name: /A title updated through the library/ }),
-    ).toBeVisible();
-    await page.locator(`a[href="/?project=${project.id}"]`).first().click();
+    await expect(card).toContainText("A title updated through the library");
+    await page.locator(`a[href="/studio?project=${project.id}"]`).first().click();
     await expect(page.locator(".canvas-frame h1")).toHaveText(
       "A title updated through the library",
     );

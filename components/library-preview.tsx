@@ -189,9 +189,12 @@ export default function LibraryPreview({ full = false }: { full?: boolean }) {
                     {p.slideCount} {p.slideCount === 1 ? "slide" : "slides"}
                   </span>
                 </div>
-                <a href={`/?project=${p.id}`}>
-                  Open in editor <ArrowRight size={14} />
-                </a>
+                <div className="project-header-actions">
+                  <a href={`/api/projects/${p.id}/export`}>Export JSON</a>
+                  <a href={p.slideCount === 0 ? `/?project=${p.id}` : `/studio?project=${p.id}`}>
+                    {p.slideCount === 0 ? "Create first slide" : "Open in editor"} <ArrowRight size={14} />
+                  </a>
+                </div>
               </div>
               <div className="saved-slide-grid">
                 {filteredSlides
@@ -213,7 +216,7 @@ export default function LibraryPreview({ full = false }: { full?: boolean }) {
                   ))}
                 {p.slideCount === 0 && (
                   <div className="empty-project">
-                    No slides yet. Open this project in the editor to add some.
+                    No slides yet. Choose a template or import JSON to create the first one.
                   </div>
                 )}
               </div>

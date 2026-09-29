@@ -21,7 +21,7 @@ async function expectFlowFitted(container: Locator) {
 test("themes, slide creation, content, JSON validation, persistence and presentation", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/studio?demo=1");
   await expect(
     page.getByRole("textbox", { name: "Presentation name" }),
   ).toHaveValue("A little more possibility");
@@ -74,7 +74,7 @@ test("themes, slide creation, content, JSON validation, persistence and presenta
 
 test("desktop and mobile layout fit the viewport", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto("/");
+  await page.goto("/studio?demo=1");
   await page.screenshot({ path: "/tmp/folio-desktop.png", fullPage: true });
   expect(
     await page.evaluate(
@@ -93,7 +93,7 @@ test("desktop and mobile layout fit the viewport", async ({ page }) => {
 test("Mermaid diagrams render, zoom, pan, fit, recover from syntax errors, and present", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/studio?demo=1");
   await page.getByRole("button", { name: /Slide 6: From checkout/ }).click();
   const canvas = page.locator(".canvas-frame");
   await expect(canvas.locator(".diagram-svg svg")).toBeVisible({
@@ -155,7 +155,7 @@ test("Mermaid diagrams render, zoom, pan, fit, recover from syntax errors, and p
 test("diagram insertion, readable size, mobile fit and source persistence", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/studio?demo=1");
   await page.getByRole("button", { name: "Add slide", exact: true }).click();
   await page.getByRole("button", { name: "diagram", exact: true }).click();
   const canvas = page.locator(".canvas-frame");
@@ -192,7 +192,7 @@ test("diagram insertion, readable size, mobile fit and source persistence", asyn
 test("diagram-only fullscreen fills viewport and closes back to editor or presentation", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/studio?demo=1");
   await page.getByRole("button", { name: /Slide 6: From checkout/ }).click();
   const canvas = page.locator(".canvas-frame");
   await expect(canvas.locator(".diagram-svg svg")).toBeVisible();
@@ -247,7 +247,7 @@ test("diagram-only fullscreen fills viewport and closes back to editor or presen
 test("Next reveals code before navigating and Back reverses each reveal", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/studio?demo=1");
   await page.getByRole("button", { name: /Slide 8: A workflow/ }).click();
   const canvas = page.locator(".canvas-frame");
   await expect(canvas.locator(".code-panel")).toContainText("name: Branch CI");
@@ -286,7 +286,7 @@ test("Next reveals code before navigating and Back reverses each reveal", async 
 test("React Flow reveals forward and backward, pans, zooms and supports fullscreen", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/studio?demo=1");
   await page.getByRole("button", { name: /Slide 7: From commit/ }).click();
   const canvas = page.locator(".canvas-frame");
   const nodes = canvas.locator(".react-flow__node");
@@ -371,7 +371,7 @@ test("legacy reference flow migrates to React Flow and invalid graph JSON is rej
     (deck) => localStorage.setItem("folio-deck", JSON.stringify(deck)),
     legacy,
   );
-  await page.goto("/");
+  await page.goto("/studio?demo=1");
   await expect(page.locator(".canvas-frame .react-flow__node")).toHaveCount(1);
   await page.keyboard.press("ArrowRight");
   await expect(page.locator(".canvas-frame .react-flow__node")).toHaveCount(2);
@@ -420,7 +420,7 @@ test("legacy left-advance flag no longer reverses Mermaid keyboard behavior", as
       }),
     ),
   );
-  await page.goto("/");
+  await page.goto("/studio?demo=1");
   const canvas = page.locator(".canvas-frame");
   await expect(canvas.locator(".reveal-caption")).toContainText("Step 1 / 2");
   await page.keyboard.press("ArrowRight");

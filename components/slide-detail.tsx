@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Check, FileJson, Trash2 } from "lucide-react";
 import { slideSchema, type ValidSlide } from "@/lib/slide-schema";
-import { SlideCanvas } from "@/app/page";
+import { SlideCanvas } from "@/app/studio/page";
 import type { Theme } from "@/lib/deck";
 type RecordItem = {
   id: string;
@@ -191,7 +191,11 @@ export default function SlideDetail({
                 {new Date(record.updatedAt).toLocaleString()}
               </p>
             </div>
-            <a href={`/?project=${projectId}`}>Open project in editor</a>
+            <div className="detail-actions">
+              <a href={`/api/projects/${projectId}/slides/${slideId}/export`}>Export JSON</a>
+              <a href={`/api/projects/${projectId}/slides/${slideId}/screenshot`}>Download PNG</a>
+              <a href={`/studio?project=${projectId}`}>Open project in editor</a>
+            </div>
           </div>
           <div className="detail-columns">
             <div className="detail-preview">

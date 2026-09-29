@@ -4,7 +4,7 @@ import { test, expect } from "@playwright/test";
 const starter = JSON.parse(readFileSync("public/first-horizon-deck.json", "utf8"));
 
 test("First Horizon applies without replacing content and survives import, export and reload", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/studio?demo=1");
   const canvas = page.locator(".canvas-frame .slide-canvas");
   const originalTitle = await canvas.locator("h1").textContent();
   await page.getByRole("button", { name: "First Horizon", exact: true }).click();
@@ -44,7 +44,7 @@ test("First Horizon fits a mobile viewport", async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   try {
     const page = await context.newPage();
-    await page.goto(test.info().project.use.baseURL!);
+    await page.goto(new URL("/studio?demo=1", test.info().project.use.baseURL!).toString());
     await page.getByRole("button", { name: "Edit JSON", exact: true }).click();
     await page.locator('input[type="file"]').setInputFiles("public/first-horizon-deck.json");
     await expect(page.getByRole("textbox", { name: "Deck JSON" })).toContainText("first-horizon");

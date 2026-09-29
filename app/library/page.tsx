@@ -12,7 +12,7 @@ export default function LibraryPage() {
           folio<span className="brand-period">.</span>
         </a>
         <a href="/">
-          <ArrowLeft size={15} /> Back to editor
+          <ArrowLeft size={15} /> Create a slide
         </a>
       </header>
       <LibraryPreview full />

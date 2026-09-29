@@ -2,7 +2,7 @@ FROM node:24-bookworm-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends curl \
+RUN apt-get update && apt-get install -y --no-install-recommends curl chromium fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production \

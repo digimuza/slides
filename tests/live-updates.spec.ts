@@ -20,7 +20,7 @@ test("conditional reads, stale saves, and open pages follow slide changes", asyn
     const slideTag = firstSlide.headers().etag;
     expect((await request.get(`/api/slides/${slideId}`, { headers: { "If-None-Match": slideTag } })).status()).toBe(304);
 
-    await page.goto(`/?project=${project.id}`);
+    await page.goto(`/studio?project=${project.id}`);
     await expect(page.locator(".canvas-frame h1")).toHaveText(original.slides[0].title);
     const detail = await page.context().newPage();
     await detail.goto(`/library/projects/${project.id}/slides/${slideId}`);

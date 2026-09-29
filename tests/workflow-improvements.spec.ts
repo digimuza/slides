@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { test, expect } from "@playwright/test";
 
 test("reorder keeps slide identity, persists, exports notes, and respects boundaries", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/studio?demo=1");
   await expect(page.getByRole("button", { name: "Move slide earlier" })).toBeDisabled();
   const title = await page.locator(".canvas-frame h1").innerText();
   await page.getByRole("textbox", { name: "Speaker notes", exact: true }).fill("Rehearse this opening.\nPause for questions.");

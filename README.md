@@ -1,6 +1,6 @@
 # Folio
 
-A Next.js presentation studio with JSON-driven slides, four visual themes, and Motion animations.
+A Next.js presentation studio with JSON-driven slides, four visual themes, and Motion animations. The home page creates a saved project from a slide template or an uploaded slide/deck JSON file. Open the project in the studio to edit it, or update it through the REST API or MCP endpoint.
 
 ## Run
 
@@ -150,14 +150,21 @@ All API responses use `{ "data": ... }` on success or `{ "error": { "code", "mes
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
 | GET, POST | `/api/projects` | List or create projects |
+| GET | `/api/projects/{projectId}/export` | Download the project's complete deck as JSON |
 | GET, PATCH, DELETE | `/api/projects/{projectId}` | Read, rename, or delete a project |
 | GET, PUT | `/api/projects/{projectId}/deck` | Read or atomically save a deck |
 | GET, POST | `/api/projects/{projectId}/slides` | List or create individual slides |
 | GET, PUT, PATCH, DELETE | `/api/projects/{projectId}/slides/{slideId}` | Manage a slide within a project |
+| GET | `/api/projects/{projectId}/slides/{slideId}/export` | Download one slide as JSON |
+| GET | `/api/projects/{projectId}/slides/{slideId}/screenshot` | Download one rendered slide as PNG |
 | GET | `/api/slides?projectId={projectId}` | List slide summaries across projects or filter them |
 | GET, PUT, PATCH, DELETE | `/api/slides/{slideId}` | Manage one slide by its direct ID |
 
 `POST /api/projects` accepts `{ "name": "My project", "theme": "editorial" }`. `POST /api/projects/{projectId}/slides` and `PUT /api/slides/{slideId}` accept a raw slide object matching the deck schema, including `id`, `layout`, `title`, `eyebrow`, `description`, and `notes`. `PATCH /api/slides/{slideId}` accepts changed slide fields, merges them with the saved object, and validates the complete result. `PUT /api/projects/{projectId}/deck` accepts the complete deck JSON. Saved slides also have links at `/library/projects/{projectId}/slides/{slideId}`.
+
+Every saved deck belongs to a project. To create and update one through MCP, connect to `https://slides.digimuza.ai/api/mcp`, then call `create_project`, `create_slide`, `get_slide`, and `update_slide` with the exact `etag` returned by `get_slide`. The open studio at `/studio?project={projectId}` refreshes saved changes automatically. The `slideId` used in API URLs and MCP calls is the database UUID returned by `create_slide` or `list_slides`; it differs from the slide JSON's `id` field.
+
+JSON exports can be imported from the home page. PNG screenshots are generated from the saved slide page and require Chromium in the production container. The screenshot endpoint returns `image/png` and a download filename.
 
 This local workspace has no user accounts or API authentication. Add authentication and project ownership before exposing these endpoints to other users or the public internet.
 
