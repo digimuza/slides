@@ -28,6 +28,7 @@ test("First Horizon applies without replacing content and survives import, expor
   }
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Export as JSON" }).click();
   const exported = JSON.parse(readFileSync((await (await download).path())!, "utf8"));
   expect(exported).toEqual(starter);
   await page.getByRole("button", { name: "Present", exact: true }).click();

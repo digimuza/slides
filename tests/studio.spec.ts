@@ -60,6 +60,7 @@ test("themes, slide creation, content, JSON validation, persistence and presenta
   );
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Export as JSON" }).click();
   expect((await download).suggestedFilename()).toMatch(/\.json$/);
   await page.getByRole("button", { name: "Present", exact: true }).click();
   await expect(page.locator(".presentation-mode")).toBeVisible();
