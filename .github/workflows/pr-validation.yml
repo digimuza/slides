@@ -107,7 +107,7 @@ jobs:
             sleep 5
           done
           test "$status" = finished
-          curl --fail --silent --show-error --retry 6 --retry-delay 5 \
+          curl --fail --silent --show-error --retry 12 --retry-all-errors --retry-delay 5 \
             https://slides.digimuza.ai/api/projects -o /dev/null
       - name: Upload failing test report
         if: failure()
