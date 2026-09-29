@@ -55,7 +55,9 @@ jobs:
       - name: Run browser and API tests
         run: npx playwright test
       - name: Set image name
-        run: echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+        run: |
+          echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+          echo "COOLIFY_IMAGE=docker.digimuza.ai/slides" >> "$GITHUB_ENV"
       - name: Build Docker image from Next.js output
         run: docker build -t "$IMAGE_NAME:$GITHUB_SHA" -t "$IMAGE_NAME:latest" .
       - name: Log in to GitHub Container Registry
@@ -63,11 +65,50 @@ jobs:
         run: echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
         env:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish Docker image
+      - name: Publish Docker image to GitHub Container Registry
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         run: |
           docker push "$IMAGE_NAME:$GITHUB_SHA"
           docker push "$IMAGE_NAME:latest"
+      - name: Log in to Coolify registry
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: echo "$REGISTRY_PASSWORD" | docker login docker.digimuza.ai -u "$REGISTRY_USERNAME" --password-stdin
+        env:
+          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Publish Docker image to Coolify registry
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: |
+          docker tag "$IMAGE_NAME:$GITHUB_SHA" "$COOLIFY_IMAGE:$GITHUB_SHA"
+          docker tag "$IMAGE_NAME:latest" "$COOLIFY_IMAGE:latest"
+          docker push "$COOLIFY_IMAGE:$GITHUB_SHA"
+          docker push "$COOLIFY_IMAGE:latest"
+      - name: Deploy in Coolify
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+        run: |
+          response=$(curl --fail-with-body --silent --show-error \
+            -X POST https://coolify.digimuza.ai/api/v1/deploy \
+            -H "Authorization: Bearer $COOLIFY_TOKEN" \
+            -H 'Content-Type: application/json' \
+            -d '{"uuid":"jlw5gkri4nm9mvkskjjbauhc"}')
+          deployment_uuid=$(jq -r '.deployments[0].deployment_uuid // empty' <<< "$response")
+          test -n "$deployment_uuid"
+          echo "Coolify deployment: $deployment_uuid"
+          for attempt in {1..90}; do
+            status=$(curl --fail-with-body --silent --show-error \
+              "https://coolify.digimuza.ai/api/v1/deployments/$deployment_uuid" \
+              -H "Authorization: Bearer $COOLIFY_TOKEN" | jq -r '.status')
+            case "$status" in
+              finished) break ;;
+              failed|cancelled|cancelled-by-user) echo "Coolify deployment $status"; exit 1 ;;
+            esac
+            sleep 5
+          done
+          test "$status" = finished
+          curl --fail --silent --show-error --retry 6 --retry-delay 5 \
+            https://slides.digimuza.ai/api/projects -o /dev/null
       - name: Upload failing test report
         if: failure()
         uses: actions/upload-artifact@v5

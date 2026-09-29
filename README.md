@@ -11,14 +11,14 @@ npm run dev -- --port 3011
 
 Open http://localhost:3011. For production, run `npm run build` then `npm start`.
 
-## Docker image
+## Deployment
 
-The [GitHub Actions workflow](.github/workflows/pr-validation.yml) installs dependencies with `npm ci`, builds and tests the Next.js app on Linux, then builds a Docker image by copying the standalone server and static assets. Pull requests verify the image build. Successful pushes to `main` publish `ghcr.io/OWNER/REPO:latest` and `ghcr.io/OWNER/REPO:<commit-sha>` to GitHub Container Registry. Replace `OWNER/REPO` with this repository's lowercase path.
+The [GitHub Actions workflow](.github/workflows/pr-validation.yml) installs dependencies with `npm ci`, builds and tests the Next.js app on Linux, then builds a Docker image by copying the standalone server and static assets. Pull requests verify the image build. Successful pushes to `main` publish images tagged `latest` and `<commit-sha>` to both `ghcr.io/digimuza/slides` and `docker.digimuza.ai/slides`, trigger the `slides` application in Coolify, and check [slides.digimuza.ai](https://slides.digimuza.ai/api/projects) after deployment. The workflow uses repository secrets `REGISTRY_USERNAME`, `REGISTRY_PASSWORD`, and `COOLIFY_TOKEN`.
 
 Run the published image with a PostgreSQL URL reachable from the container:
 
 ```sh
-docker run --rm -p 3000:3000 -e DATABASE_URL="$DATABASE_URL" ghcr.io/OWNER/REPO:latest
+docker run --rm -p 3000:3000 -e DATABASE_URL="$DATABASE_URL" docker.digimuza.ai/slides:latest
 ```
 
 Open http://localhost:3000. `DATABASE_URL` is read at runtime; it is not baked into the image. The Dockerfile expects output from `npm run build` and does not install dependencies inside the image.
