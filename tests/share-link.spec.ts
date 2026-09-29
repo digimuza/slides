@@ -26,9 +26,15 @@ test("share links are unique, read-only, and show the latest saved deck", async 
     expect(secondPath).not.toBe(firstPath);
     expect((await (await request.post(`/api/projects/${projects[0]}/share`)).json()).data.path).toBe(firstPath);
 
+    await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto(firstPath);
     await expect(page.getByRole("heading", { name: "Shared deck 0" })).toBeVisible();
-    await expect(page.getByText("View only")).toBeVisible();
+    await expect(page.getByText("View only")).toBeAttached();
+    const canvas = await page.locator(".shared-viewer-canvas").boundingBox();
+    expect(canvas?.x).toBeCloseTo(0, 0);
+    expect(canvas?.y).toBeCloseTo(0, 0);
+    expect(canvas?.width).toBeCloseTo(1280, 0);
+    expect(canvas?.height).toBeCloseTo(720, 0);
     await expect(page.getByRole("button", { name: "Next slide" })).toBeDisabled();
     await expect(page.getByRole("button", { name: "Save changes" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Edit JSON" })).toHaveCount(0);
